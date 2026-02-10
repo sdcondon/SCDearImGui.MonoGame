@@ -120,7 +120,7 @@ public sealed class ImGuiRenderer : IDisposable
     /// Gets the scale that was provided on the last invocation of <see cref="ApplyStyleAndFonts"/>.
     /// Throws if it has not yet been invoked.
     /// </summary>
-    public float CurrentUiScale
+    public float Scale
     {
         get
         {
