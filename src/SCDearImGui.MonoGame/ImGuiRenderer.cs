@@ -271,11 +271,11 @@ public sealed class ImGuiRenderer : IDisposable
 
     /// <summary>
     /// <para>
-    /// Applies the style stored with <see cref="StoreReferenceStyle"/>, with sizings scaled by a given amount.
-    /// Loads all registered fonts, with sizes also scaled. Finally, rebuilds the font atlas.
+    /// Applies the style stored with <see cref="StoreReferenceStyle"/> (or Dear ImGui's default style if this hasn't been invoked),
+    /// with sizings scaled by a given amount. Loads all registered fonts, with sizes also scaled. Finally, rebuilds the font atlas.
     /// </para>
     /// <list type="bullet">
-    /// <item>NB#1: Needs to be called between drawing previous frame and starting new one.</item>
+    /// <item>NB#1: Needs to be called between drawing previous frame and starting new one, or ImGui will complain.</item>
     /// <item>NB#2: Will clobber any font not registered with <see cref="RegisterFont"/>. Can't see an easy way to reload only a subset of fonts - looks like they can only be cleared en masse. Which is annoying.</item>
     /// <item>NB#3: Fairly expensive because it reloads all fonts. Don't call me too often - consider debouncing if necessary (see the display settings window in the demo project for an example of this).</item>
     /// </list>
@@ -328,7 +328,7 @@ public sealed class ImGuiRenderer : IDisposable
         _fontAtlasTextureId = RegisterTexture(atlasTexture);
         _imGuiIO.Fonts.SetTexID(_fontAtlasTextureId.Value);
 
-        // Store scale.
+        // Store scale for querying by by consumers:
         currentUiScale = scale;
 
         Trace.Write($"{fontRegistrations.Count} fonts loaded in {fontReloadStopwatch.ElapsedMilliseconds}ms.", TraceCategory);
