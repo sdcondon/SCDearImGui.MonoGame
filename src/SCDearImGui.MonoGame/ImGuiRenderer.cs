@@ -380,12 +380,14 @@ public sealed class ImGuiRenderer : IDisposable
 
     private void HandleWindowTextInput(object? sender, TextInputEventArgs eventArgs)
     {
-        // TODO: _higherPriorityRenderer.WantTextInput relevance here?
-
         // TODO: do we need any kind of synchronisation here? when/how might this event be raised?
         // We *could* (if needed) store it in a (thread-safe) queue for consumption during the next BeginUpdate()?
         // Almost certainly fine as-is, though..
-        if (eventArgs.Character == '\t') return;
+        if (eventArgs.Character == '\t' || _higherPriorityRenderer?._imGuiIO.WantTextInput == true)
+        {
+            return;
+        }
+
         ImGui.SetCurrentContext(_imGuiContext);
         _imGuiIO.AddInputCharacter(eventArgs.Character);
     }
