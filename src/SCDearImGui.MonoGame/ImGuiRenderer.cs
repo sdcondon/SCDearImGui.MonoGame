@@ -28,6 +28,7 @@ public sealed class ImGuiRenderer : IDisposable
     private readonly nint _imGuiContext;
     private readonly ImGuiIOPtr _imGuiIO;
     private readonly nint _iniFilePathPtr;
+    private readonly ImGuiRenderer? _higherPriorityRenderer;
 
     // Graphics
     private readonly GraphicsDevice _graphicsDevice;
@@ -55,9 +56,22 @@ public sealed class ImGuiRenderer : IDisposable
     /// <summary>
     /// Initialises a new instance of the <see cref="ImGuiRenderer"/> class.
     /// </summary>
-    /// <param name="game">The <see cref="Game"/> that this renderer is used by.</param>
-    /// <param name="iniFilePath">The name of the ini file to use - or null to use no ini file (meaning no GUI state persistence will occur).</param>
-    public ImGuiRenderer(Game game, string? iniFilePath = null)
+    /// <param name="game">
+    /// The <see cref="Game"/> that this renderer is to be used by.
+    /// </param>
+    /// <param name="iniFilePath">
+    /// The name of the ini file to use - or null to use no ini file (meaning no GUI state persistence will occur).
+    /// </param>
+    /// <param name="higherPriorityRenderer">
+    /// <para>
+    /// A renderer to give priority to for capturing input.
+    /// </para>
+    /// <para>
+    /// For example, the renderer of a console window, whose content should always be top and should not be disabled
+    /// when this renderer is showing a modal.
+    /// </para>
+    /// </param>
+    public ImGuiRenderer(Game game, string? iniFilePath = null, ImGuiRenderer? higherPriorityRenderer = null)
     {
         // Setup context
         _game = game ?? throw new ArgumentNullException(nameof(game));
@@ -72,6 +86,9 @@ public sealed class ImGuiRenderer : IDisposable
             _iniFilePathPtr = Marshal.StringToHGlobalAnsi(iniFilePath);
             _imGuiIO.NativePtr->IniFilename = (byte*)_iniFilePathPtr;
         }
+
+        // Set higher priority renderer
+        _higherPriorityRenderer = higherPriorityRenderer;
 
         // Store reference style so end user doesn't *have* to:
         StoreReferenceStyle();
@@ -136,12 +153,12 @@ public sealed class ImGuiRenderer : IDisposable
     /// <summary>
     /// Gets a value indicating whether the GUI is currently capturing mouse input (because e.g. the mouse is positioned over a window).
     /// </summary>
-    public bool IsCapturingMouse => _imGuiIO.WantCaptureMouse;
+    public bool IsCapturingMouse => _imGuiIO.WantCaptureMouse; // todo: || _higherPriorityRenderer.IsCapturingMouse; ?
 
     /// <summary>
     /// Gets a value indicating whether the GUI is currently capturing keyboard input (because e.g. a text input field is focused).
     /// </summary>
-    public bool IsCapturingKeyboard => _imGuiIO.WantCaptureKeyboard;
+    public bool IsCapturingKeyboard => _imGuiIO.WantCaptureKeyboard; // todo: || _higherPriorityRenderer.IsCapturingKeyboard; ?
 
     /// <summary>
     /// <para>
@@ -363,6 +380,8 @@ public sealed class ImGuiRenderer : IDisposable
 
     private void HandleWindowTextInput(object? sender, TextInputEventArgs eventArgs)
     {
+        // TODO: _higherPriorityRenderer.WantTextInput relevance here?
+
         // TODO: do we need any kind of synchronisation here? when/how might this event be raised?
         // We *could* (if needed) store it in a (thread-safe) queue for consumption during the next BeginUpdate()?
         // Almost certainly fine as-is, though..
@@ -380,18 +399,24 @@ public sealed class ImGuiRenderer : IDisposable
         _imGuiIO.DisplayFramebufferScale = new(1f, 1f);
 
         var mouseState = Mouse.GetState();
-        AddMousePosEvent();
-        AddMouseWheelEvent();
-        AddMouseButtonEvent(0, _lastMouseState.LeftButton, mouseState.LeftButton);
-        AddMouseButtonEvent(1, _lastMouseState.RightButton, mouseState.RightButton);
-        AddMouseButtonEvent(2, _lastMouseState.MiddleButton, mouseState.MiddleButton);
-        AddMouseButtonEvent(3, _lastMouseState.XButton1, mouseState.XButton1);
-        AddMouseButtonEvent(4, _lastMouseState.XButton2, mouseState.XButton2);
+        if (_higherPriorityRenderer?.IsCapturingMouse != true)
+        {
+            AddMousePosEvent();
+            AddMouseWheelEvent();
+            AddMouseButtonEvent(0, _lastMouseState.LeftButton, mouseState.LeftButton);
+            AddMouseButtonEvent(1, _lastMouseState.RightButton, mouseState.RightButton);
+            AddMouseButtonEvent(2, _lastMouseState.MiddleButton, mouseState.MiddleButton);
+            AddMouseButtonEvent(3, _lastMouseState.XButton1, mouseState.XButton1);
+            AddMouseButtonEvent(4, _lastMouseState.XButton2, mouseState.XButton2);
+        }
         _lastMouseState = mouseState;
 
         var keyboardState = Keyboard.GetState();
-        AddKeyEvents(_lastKeyboardState, keyboardState, false);
-        AddKeyEvents(keyboardState, _lastKeyboardState, true);
+        if (_higherPriorityRenderer?.IsCapturingKeyboard != true)
+        {
+            AddKeyEvents(_lastKeyboardState, keyboardState, false);
+            AddKeyEvents(keyboardState, _lastKeyboardState, true);
+        }
         _lastKeyboardState = keyboardState;
 
         void AddMousePosEvent()
