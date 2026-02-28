@@ -301,7 +301,6 @@ public sealed class ImGuiRenderer : IDisposable
     {
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(scale, 0);
 
-        // Might not be needed - if its fine to access the IO struct of a context that isn't active? probably is?
         ImGui.SetCurrentContext(_imGuiContext);
 
         unsafe
