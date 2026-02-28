@@ -130,7 +130,7 @@ public sealed class ImGuiRenderer : IDisposable
 
     ~ImGuiRenderer()
     {
-        ImGui.DestroyContext(_imGuiContext);
+        Dispose(false);
     }
 
     /// <summary>
@@ -151,14 +151,14 @@ public sealed class ImGuiRenderer : IDisposable
     }
 
     /// <summary>
-    /// Gets a value indicating whether the GUI is currently capturing mouse input (because e.g. the mouse is positioned over a window).
+    /// Gets a value indicating whether this GUI (or the higher priority one it defers to) is currently capturing mouse input (because e.g. the mouse is positioned over a window).
     /// </summary>
-    public bool IsCapturingMouse => _imGuiIO.WantCaptureMouse; // todo: || _higherPriorityRenderer.IsCapturingMouse; ?
+    public bool IsCapturingMouse => _imGuiIO.WantCaptureMouse || _higherPriorityRenderer?.IsCapturingMouse == true;
 
     /// <summary>
-    /// Gets a value indicating whether the GUI is currently capturing keyboard input (because e.g. a text input field is focused).
+    /// Gets a value indicating whether this GUI (or the higher priority one it defers to) is currently capturing keyboard input (because e.g. a text input field is focused).
     /// </summary>
-    public bool IsCapturingKeyboard => _imGuiIO.WantCaptureKeyboard; // todo: || _higherPriorityRenderer.IsCapturingKeyboard; ?
+    public bool IsCapturingKeyboard => _imGuiIO.WantCaptureKeyboard || _higherPriorityRenderer?.IsCapturingKeyboard == true;
 
     /// <summary>
     /// <para>
@@ -351,30 +351,10 @@ public sealed class ImGuiRenderer : IDisposable
         Trace.Write($"{fontRegistrations.Count} fonts loaded in {fontReloadStopwatch.ElapsedMilliseconds}ms.", TraceCategory);
     }
 
+    /// <inheritdoc/>
     public void Dispose()
     {
-        _game.Window.TextInput -= HandleWindowTextInput;
-
-        foreach (var texture in _texturesById.Values)
-        {
-            texture?.Dispose();
-        }
-
-        // TODO-ROBUSTNESS: stuff below should go in finalizer too.
-        // proper dispose pattern?
-
-        // If ini filename is what we set, (should be unless some manual
-        // shenanigans have occured), then free it.
-        unsafe
-        {
-            if (_iniFilePathPtr == (nint)ImGui.GetIO().NativePtr->IniFilename && _iniFilePathPtr != 0)
-            {
-                Marshal.FreeHGlobal(_iniFilePathPtr);
-            }
-        }
-
-        ImGui.DestroyContext(_imGuiContext);
-
+        Dispose(true);
         GC.SuppressFinalize(this);
     }
 
@@ -592,6 +572,30 @@ public sealed class ImGuiRenderer : IDisposable
 
             vtxOffset += cmdList.VtxBuffer.Size;
             idxOffset += cmdList.IdxBuffer.Size;
+        }
+    }
+
+    private void Dispose(bool isSafeToAccessReferences)
+    {
+        // If ini filename is what we set, (should be unless some manual shenanigans have occured), then free it:
+        unsafe
+        {
+            if (_iniFilePathPtr != 0 && _iniFilePathPtr == (nint)_imGuiIO.NativePtr->IniFilename)
+            {
+                Marshal.FreeHGlobal(_iniFilePathPtr);
+            }
+        }
+
+        ImGui.DestroyContext(_imGuiContext);
+
+        if (isSafeToAccessReferences)
+        {
+            _game.Window.TextInput -= HandleWindowTextInput;
+
+            foreach (var texture in _texturesById.Values)
+            {
+                texture?.Dispose();
+            }
         }
     }
 }
