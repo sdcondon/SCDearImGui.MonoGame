@@ -344,7 +344,7 @@ public sealed class ImGuiRenderer : IDisposable
         _fontAtlasTextureId = RegisterTexture(atlasTexture);
         _imGuiIO.Fonts.SetTexID(_fontAtlasTextureId.Value);
 
-        // Store scale for querying by by consumers:
+        // Store scale for querying by consumers:
         currentUiScale = scale;
 
         Trace.Write($"{fontRegistrations.Count} fonts loaded in {fontReloadStopwatch.ElapsedMilliseconds}ms.", TraceCategory);
