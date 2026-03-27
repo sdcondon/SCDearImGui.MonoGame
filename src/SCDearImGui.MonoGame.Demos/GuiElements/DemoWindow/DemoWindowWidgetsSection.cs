@@ -279,8 +279,8 @@ class DemoWindowWidgetsSection()
             if (TreeNode("Advanced, with Selectable nodes"))
             {
                 HelpMarker(
-                "This is a more typical looking tree with selectable nodes.\n" +
-                "Click to select, CTRL+Click to toggle, click on arrows or double-click to open.");
+                    "This is a more typical looking tree with selectable nodes.\n" +
+                    "Click to select, CTRL+Click to toggle, click on arrows or double-click to open.");
 
                 if (base_flags_first_run)
                 {
@@ -302,7 +302,7 @@ class DemoWindowWidgetsSection()
 
                 for (int i = 0; i < 6; i++)
                 {
-                    ImGuiTreeNodeFlags node_flags = (ImGuiTreeNodeFlags)base_flags;
+                    ImGuiTreeNodeFlags node_flags = base_flags;
                     if (i == index_selected)
                     {
                         node_flags |= ImGuiTreeNodeFlags.Selected;
