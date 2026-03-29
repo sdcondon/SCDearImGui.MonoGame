@@ -13,7 +13,6 @@ namespace SCDearImGui.MonoGame;
 public sealed class ImGuiRenderer : IDisposable
 {
     private const float MOUSE_WHEEL_DELTA = 120;
-    private static readonly string TraceCategory = typeof(ImGuiRenderer).FullName!;
 
     private static readonly int ImDrawVertexStride = Marshal.SizeOf<ImDrawVert>();
 
@@ -132,6 +131,11 @@ public sealed class ImGuiRenderer : IDisposable
     {
         Dispose(false);
     }
+
+    /// <summary>
+    /// Gets or sets the category to use for trace messages. Defaults to the full name of the <see cref="ImGuiRenderer"/> type.
+    /// </summary>
+    public string TraceCategory { get; set; } = typeof(ImGuiRenderer).FullName!;
 
     /// <summary>
     /// Gets the scale that was provided on the last invocation of <see cref="ApplyStyleAndFonts"/>.
