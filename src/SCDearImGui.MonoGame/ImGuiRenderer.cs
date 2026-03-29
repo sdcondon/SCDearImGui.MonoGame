@@ -351,7 +351,7 @@ public sealed class ImGuiRenderer : IDisposable
         // Store scale for querying by consumers:
         currentUiScale = scale;
 
-        Trace.Write($"{fontRegistrations.Count} fonts loaded in {fontReloadStopwatch.ElapsedMilliseconds}ms.", TraceCategory);
+        Trace.Write($"{_imGuiIO.Fonts.Fonts.Size} fonts loaded in {fontReloadStopwatch.ElapsedMilliseconds}ms.", TraceCategory);
     }
 
     /// <inheritdoc/>
