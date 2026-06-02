@@ -59,11 +59,21 @@ class LongTextDisplayWindow(bool isOpen = false)
                 unsafe
                 {
                     ImGuiListClipperPtr clipper = new(ImGuiNative.ImGuiListClipper_ImGuiListClipper());
-                    clipper.Begin(lines.Count);
-                    while (clipper.Step())
-                        for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
-                            Text(lines[i]);
-                    clipper.Destroy(); // should probably be in a finally block, really..
+                    try
+                    {
+                        clipper.Begin(lines.Count);
+                        while (clipper.Step())
+                        {
+                            for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
+                            {
+                                Text(lines[i]);
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        clipper.Destroy();
+                    }
                 }
                 PopStyleVar();
                 break;
