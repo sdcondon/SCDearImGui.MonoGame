@@ -272,6 +272,16 @@ public sealed class ImGuiRenderer : IDisposable
     }
 
     /// <summary>
+    /// Register a font that will be (re-)loaded whenever <see cref="ApplyStyleAndFonts"/> is invoked.
+    /// </summary>
+    public FontRegistration RegisterFont(byte[] ttfData, float defaultSizePixels)
+    {
+        FontRegistration fontRegistration = new(ttfData, defaultSizePixels);
+        fontRegistrations.Add(fontRegistration);
+        return fontRegistration;
+    }
+
+    /// <summary>
     /// <para>
     /// Stores the current style as the reference style that is applied
     /// when <see cref="ApplyStyleAndFonts"/> is invoked.
@@ -323,7 +333,7 @@ public sealed class ImGuiRenderer : IDisposable
         _imGuiIO.Fonts.Clear();
         foreach (var r in fontRegistrations)
         {
-            r.FontPtr = _imGuiIO.Fonts.AddFontFromFileTTF(r.TtfFilePath, r.DefaultSizePixels * scale);
+            r.AddToAtlas(_imGuiIO.Fonts, scale);
         }
 
         // If the font atlas has already been built, unregister the registered texture first (which also disposes the XNA texture object).

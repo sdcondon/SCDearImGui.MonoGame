@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using SCDearImGui.MonoGame.Demos.GuiElements.Concepts;
 using SCDearImGui.MonoGame.Demos.GuiElements.DemoWindow;
 using SCDearImGui.MonoGame.Demos.GuiElements.MiniApps;
+using System.IO;
 
 namespace SCDearImGui.MonoGame.Demos;
 
@@ -129,7 +130,8 @@ public class Program : Game
     {
         // Load the GUI content - specifically, the fonts.
         ImGui.GetIO().Fonts.AddFontDefault();
-        guiRenderer.RegisterFont("Content\\Fonts\\Roboto-Regular.ttf", 24);
+        //guiRenderer.RegisterFont("Content\\Fonts\\Roboto-Regular.ttf", 24);
+        guiRenderer.RegisterFont(File.ReadAllBytes("Content\\Fonts\\Roboto-Regular.ttf"), 24);
         guiRenderer.ApplyStyleAndFonts();
 
         // A couple of our demo windows use content, too, so tell them to load what they need:
