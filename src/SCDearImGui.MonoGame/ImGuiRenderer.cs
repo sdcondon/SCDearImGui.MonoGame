@@ -10,7 +10,7 @@ namespace SCDearImGui.MonoGame;
 /// <summary>
 /// Renderer for Dear ImGui.
 /// </summary>
-public sealed class ImGuiRenderer : IDisposable
+public sealed class ImGuiRenderer : IInputFilter, IDisposable
 {
     private const float MOUSE_WHEEL_DELTA = 120;
 
@@ -27,7 +27,7 @@ public sealed class ImGuiRenderer : IDisposable
     private readonly nint _imGuiContext;
     private readonly ImGuiIOPtr _imGuiIO;
     private readonly nint _iniFilePathPtr;
-    private readonly ImGuiRenderer? _higherPriorityRenderer;
+    private readonly IInputFilter? _inputFilter;
 
     // Graphics
     private readonly GraphicsDevice _graphicsDevice;
@@ -61,16 +61,17 @@ public sealed class ImGuiRenderer : IDisposable
     /// <param name="iniFilePath">
     /// The name of the ini file to use - or null to use no ini file (meaning no GUI state persistence will occur).
     /// </param>
-    /// <param name="higherPriorityRenderer">
+    /// <param name="inputFilter">
     /// <para>
-    /// A renderer to give priority to for capturing input.
+    /// A filter to apply to input used by this renderer.
     /// </para>
     /// <para>
-    /// For example, the renderer of a console window, whose content should always be top and should not be disabled
-    /// when this renderer is showing a modal.
+    /// For example, the <see cref="ImGuiRenderer"/> (note that the renderer implements this interface) of a console window, whose content should
+    /// always be top and should not be disabled when this renderer is showing a modal. Or of course a representation of any component that can
+    /// capture input ahead of this renderer.
     /// </para>
     /// </param>
-    public ImGuiRenderer(Game game, string? iniFilePath = null, ImGuiRenderer? higherPriorityRenderer = null)
+    public ImGuiRenderer(Game game, string? iniFilePath = null, IInputFilter? inputFilter = null)
     {
         // Setup context
         _game = game ?? throw new ArgumentNullException(nameof(game));
@@ -86,8 +87,8 @@ public sealed class ImGuiRenderer : IDisposable
             _imGuiIO.NativePtr->IniFilename = (byte*)_iniFilePathPtr;
         }
 
-        // Set higher priority renderer
-        _higherPriorityRenderer = higherPriorityRenderer;
+        // Set the input filter
+        _inputFilter = inputFilter;
 
         // Store reference style so end user doesn't *have* to:
         StoreReferenceStyle();
@@ -155,14 +156,14 @@ public sealed class ImGuiRenderer : IDisposable
     }
 
     /// <summary>
-    /// Gets a value indicating whether this GUI (or the higher priority one it defers to) is currently capturing mouse input (because e.g. the mouse is positioned over a window).
+    /// Gets a value indicating whether this GUI is currently capturing mouse input (because e.g. the mouse is positioned over a window).
     /// </summary>
-    public bool IsCapturingMouse => _imGuiIO.WantCaptureMouse || _higherPriorityRenderer?.IsCapturingMouse == true;
+    public bool IsMouseInputCaptured => _imGuiIO.WantCaptureMouse;
 
     /// <summary>
-    /// Gets a value indicating whether this GUI (or the higher priority one it defers to) is currently capturing keyboard input (because e.g. a text input field is focused).
+    /// Gets a value indicating whether this GUI is currently capturing keyboard input (because e.g. a text input field is focused).
     /// </summary>
-    public bool IsCapturingKeyboard => _imGuiIO.WantCaptureKeyboard || _higherPriorityRenderer?.IsCapturingKeyboard == true;
+    public bool IsKeyboardInputCaptured => _imGuiIO.WantCaptureKeyboard;
 
     /// <summary>
     /// <para>
@@ -376,7 +377,7 @@ public sealed class ImGuiRenderer : IDisposable
         // TODO: do we need any kind of synchronisation here? when/how might this event be raised?
         // We *could* (if needed) store it in a (thread-safe) queue for consumption during the next BeginUpdate()?
         // Almost certainly fine as-is, though..
-        if (eventArgs.Character == '\t' || _higherPriorityRenderer?._imGuiIO.WantTextInput == true)
+        if (eventArgs.Character == '\t' || _inputFilter?.IsKeyboardInputCaptured == true)
         {
             return;
         }
@@ -394,7 +395,7 @@ public sealed class ImGuiRenderer : IDisposable
         _imGuiIO.DisplayFramebufferScale = new(1f, 1f);
 
         var mouseState = Mouse.GetState();
-        if (_higherPriorityRenderer?.IsCapturingMouse != true)
+        if (_inputFilter?.IsMouseInputCaptured != true)
         {
             AddMousePosEvent();
             AddMouseWheelEvent();
@@ -407,7 +408,7 @@ public sealed class ImGuiRenderer : IDisposable
         _lastMouseState = mouseState;
 
         var keyboardState = Keyboard.GetState();
-        if (_higherPriorityRenderer?.IsCapturingKeyboard != true)
+        if (_inputFilter?.IsKeyboardInputCaptured != true)
         {
             AddKeyEvents(_lastKeyboardState, keyboardState, false);
             AddKeyEvents(keyboardState, _lastKeyboardState, true);
