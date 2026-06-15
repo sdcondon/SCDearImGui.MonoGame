@@ -1,7 +1,7 @@
 ﻿namespace SCDearImGui.MonoGame;
 
 /// <summary>
-/// Input for types that can filter the input passed to the ImGuiRenderer.
+/// Interface for types that can filter the input passed to an <see cref="ImGuiRenderer"/>.
 /// </summary>
 public interface IInputFilter
 {
