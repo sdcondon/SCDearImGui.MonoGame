@@ -67,7 +67,7 @@ public sealed class ImGuiRenderer : IInputFilter, IDisposable
     /// </para>
     /// <para>
     /// For example, the <see cref="ImGuiRenderer"/> (note that the renderer implements this interface) of a console window, whose content should
-    /// always be top and should not be disabled when this renderer is showing a modal. Or of course a representation of any component that can
+    /// always be top and should not be disabled when this renderer is showing a modal. Or of course a representation of any other component that can
     /// capture input ahead of this renderer.
     /// </para>
     /// </param>
