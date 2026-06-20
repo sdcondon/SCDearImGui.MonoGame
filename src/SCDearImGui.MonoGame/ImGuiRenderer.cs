@@ -63,12 +63,12 @@ public sealed class ImGuiRenderer : IInputFilter, IDisposable
     /// </param>
     /// <param name="inputFilter">
     /// <para>
-    /// A filter to apply to input used by this renderer.
+    /// A filter to apply to inputs consumed by this renderer.
     /// </para>
     /// <para>
     /// For example, the <see cref="ImGuiRenderer"/> (note that the renderer implements this interface) of a console window, whose content should
-    /// always be top and should not be disabled when this renderer is showing a modal. Or of course a representation of any other component that can
-    /// capture input ahead of this renderer.
+    /// always be top and should not be disabled when this renderer is showing a modal. Or of course a representation of any other component that 
+    /// can capture input ahead of this renderer.
     /// </para>
     /// </param>
     public ImGuiRenderer(Game game, string? iniFilePath = null, IInputFilter? inputFilter = null)
@@ -374,9 +374,9 @@ public sealed class ImGuiRenderer : IInputFilter, IDisposable
 
     private void HandleWindowTextInput(object? sender, TextInputEventArgs eventArgs)
     {
-        // TODO: do we need any kind of synchronisation here? when/how might this event be raised?
-        // We *could* (if needed) store it in a (thread-safe) queue for consumption during the next BeginUpdate()?
-        // Almost certainly fine as-is, though..
+        // NB: this event gets raised on the main game update thread - so never concurrently
+        // with any other update logic. as such, its safe to respond to it directly,
+        // rather than e.g. queuing up work to do the next time that BeginUpdate is invoked.
         if (eventArgs.Character == '\t' || _inputFilter?.IsKeyboardInputCaptured == true)
         {
             return;
@@ -591,10 +591,9 @@ public sealed class ImGuiRenderer : IInputFilter, IDisposable
 
     private void Dispose(bool isSafeToAccessReferences)
     {
-        // If ini filename is what we set, (should be unless some manual shenanigans have occured), then free it:
         unsafe
         {
-            if (_iniFilePathPtr != 0 && _iniFilePathPtr == (nint)_imGuiIO.NativePtr->IniFilename)
+            if (_iniFilePathPtr != 0)
             {
                 Marshal.FreeHGlobal(_iniFilePathPtr);
             }
