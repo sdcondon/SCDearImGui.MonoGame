@@ -13,6 +13,7 @@ namespace SCDearImGui.MonoGame;
 public sealed class ImGuiRenderer : IInputFilter, IDisposable
 {
     private const float MOUSE_WHEEL_DELTA = 120;
+    private const int INITIAL_BUFFER_SIZE = 512;
 
     private static readonly int ImDrawVertexStride = Marshal.SizeOf<ImDrawVert>();
 
@@ -37,9 +38,9 @@ public sealed class ImGuiRenderer : IInputFilter, IDisposable
 
     private readonly List<FontRegistration> fontRegistrations = [];
 
-    private byte[] _vertexData = [];
+    private byte[] _vertexData = new byte[INITIAL_BUFFER_SIZE * ImDrawVertexStride];
     private VertexBuffer _vertexBuffer;
-    private byte[] _indexData = [];
+    private byte[] _indexData = new byte[INITIAL_BUFFER_SIZE * sizeof(ushort)];
     private IndexBuffer _indexBuffer;
 
     private ImGuiStyle referenceStyle;
@@ -116,12 +117,12 @@ public sealed class ImGuiRenderer : IInputFilter, IDisposable
         _vertexBuffer = new VertexBuffer(
             _graphicsDevice,
             ImDrawVertexDeclaration,
-            0,
+            INITIAL_BUFFER_SIZE,
             BufferUsage.None);
         _indexBuffer = new IndexBuffer(
             _graphicsDevice,
             IndexElementSize.SixteenBits,
-            0,
+            INITIAL_BUFFER_SIZE,
             BufferUsage.None);
 
         // Setup input
