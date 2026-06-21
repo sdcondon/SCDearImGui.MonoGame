@@ -50,7 +50,7 @@ public sealed class ImGuiRenderer : IDisposable
     private nint _nextTextureId;
 
     // Input
-    private readonly List<TextInputEventArgs> _textInputs = new(10);
+    private readonly List<TextInputEventArgs> _textInputs = new(2);
     private KeyboardState _lastKeyboardState;
     private MouseState _lastMouseState;
 
