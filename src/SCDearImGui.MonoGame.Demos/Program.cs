@@ -179,9 +179,6 @@ public class Program : Game
     // NB: no need for base.Update(..) in here, since we know that we haven't added any components to update.
     protected override void Update(GameTime gameTime)
     {
-        // Display settings window can make (GUI scale) changes that need to happen outside of an ImGui frame:
-        displaySettingsWindow.PreUpdate();
-
         // Reset our input capture state, letting the various components know that they are allowed to 
         // use input.
         inputCaptureState.IsKeyboardCaptured = false;
@@ -194,7 +191,11 @@ public class Program : Game
         consoleWindow.Update();
         consoleWindowRenderer.EndUpdate();
 
-        // With the console window updated, now on to the main GUI, which renders a lot more stuff:
+        // Display settings window can make (GUI scale) changes that need to happen outside of an ImGui frame:
+        displaySettingsWindow.PreUpdate();
+
+        // With the console window updated and any main GUI scale changes applied, we can now begin the update
+        // of the main GUI which renders a lot more stuff:
         mainGuiRenderer.BeginUpdate(gameTime);
 
         // Now tell all our demos to update themselves
