@@ -10,7 +10,7 @@ namespace SCDearImGui.MonoGame;
 /// <summary>
 /// Renderer for Dear ImGui.
 /// </summary>
-public sealed class ImGuiRenderer : IInputFilter, IDisposable
+public sealed class ImGuiRenderer : IDisposable
 {
     private const float MOUSE_WHEEL_DELTA = 120;
     private const int INITIAL_BUFFER_SIZE = 512;
@@ -28,7 +28,7 @@ public sealed class ImGuiRenderer : IInputFilter, IDisposable
     private readonly nint _imGuiContext;
     private readonly ImGuiIOPtr _imGuiIO;
     private readonly nint _iniFilePathPtr;
-    private readonly IInputFilter? _inputFilter;
+    private readonly IInputCaptureState? _inputCaptureState;
 
     // Graphics
     private readonly GraphicsDevice _graphicsDevice;
@@ -36,7 +36,7 @@ public sealed class ImGuiRenderer : IInputFilter, IDisposable
     private readonly BasicEffect _effect;
     private readonly Dictionary<nint, Texture2D> _texturesById;
 
-    private readonly List<FontRegistration> fontRegistrations = [];
+    private readonly List<ImGuiFontRegistration> fontRegistrations = [];
 
     private byte[] _vertexData = new byte[INITIAL_BUFFER_SIZE * ImDrawVertexStride];
     private VertexBuffer _vertexBuffer;
@@ -50,6 +50,7 @@ public sealed class ImGuiRenderer : IInputFilter, IDisposable
     private nint _nextTextureId;
 
     // Input
+    private readonly List<TextInputEventArgs> _textInputs = new(10);
     private KeyboardState _lastKeyboardState;
     private MouseState _lastMouseState;
 
@@ -59,20 +60,20 @@ public sealed class ImGuiRenderer : IInputFilter, IDisposable
     /// <param name="game">
     /// The <see cref="Game"/> that this renderer is to be used by.
     /// </param>
+    /// <param name="inputCaptureState">
+    /// <para>
+    /// Optional. A representation of input capture state to be used by the renderer.
+    /// </para>
+    /// <para>
+    /// The renderer will not consume input if the capture state indicates that it has already been captured
+    /// when <see cref="BeginUpdate"/> is invoked. The renderer will update this object appropriately during
+    /// <see cref="EndUpdate"/>, and whenever <see cref="UpdateInputCaptureState"/> is called.
+    /// </para>
+    /// </param>
     /// <param name="iniFilePath">
     /// The name of the ini file to use - or null to use no ini file (meaning no GUI state persistence will occur).
     /// </param>
-    /// <param name="inputFilter">
-    /// <para>
-    /// A filter to apply to inputs consumed by this renderer.
-    /// </para>
-    /// <para>
-    /// For example, the <see cref="ImGuiRenderer"/> (note that the renderer implements this interface) of a console window, whose content should
-    /// always be top and should not be disabled when this renderer is showing a modal. Or of course a representation of any other component that 
-    /// can capture input ahead of this renderer.
-    /// </para>
-    /// </param>
-    public ImGuiRenderer(Game game, string? iniFilePath = null, IInputFilter? inputFilter = null)
+    public ImGuiRenderer(Game game, IInputCaptureState? inputCaptureState = null, string? iniFilePath = null)
     {
         // Setup context
         _game = game ?? throw new ArgumentNullException(nameof(game));
@@ -89,7 +90,7 @@ public sealed class ImGuiRenderer : IInputFilter, IDisposable
         }
 
         // Set the input filter
-        _inputFilter = inputFilter;
+        _inputCaptureState = inputCaptureState;
 
         // Store reference style so end user doesn't *have* to:
         StoreReferenceStyle();
@@ -157,16 +158,6 @@ public sealed class ImGuiRenderer : IInputFilter, IDisposable
     }
 
     /// <summary>
-    /// Gets a value indicating whether this GUI is currently capturing mouse input (because e.g. the mouse is positioned over a window).
-    /// </summary>
-    public bool IsMouseInputCaptured => _imGuiIO.WantCaptureMouse;
-
-    /// <summary>
-    /// Gets a value indicating whether this GUI is currently capturing keyboard input (because e.g. a text input field is focused).
-    /// </summary>
-    public bool IsKeyboardInputCaptured => _imGuiIO.WantCaptureKeyboard;
-
-    /// <summary>
     /// <para>
     /// Sets up ImGui for a new frame.
     /// </para>
@@ -191,8 +182,39 @@ public sealed class ImGuiRenderer : IInputFilter, IDisposable
     /// </summary>
     public void EndUpdate()
     {
+        UpdateInputCaptureState();
         ImGui.SetCurrentContext(_imGuiContext);
         ImGui.EndFrame();
+    }
+
+    /// <summary>
+    /// <para>
+    /// If the renderer has been given an <see cref="IInputCaptureState"/> object, prompts it to
+    /// immediately check whether the GUI wants to capture mouse or keyboard input, and update it
+    /// appropriately.
+    /// </para>
+    /// <para>
+    /// This is automatically done during <see cref="EndUpdate"/> but, depending on the 
+    /// structure of your update logic, you may want or need to also trigger it earlier, when
+    /// only some of your GUI elements have been submitted.
+    /// </para>
+    /// </summary>
+    public void UpdateInputCaptureState()
+    {
+        if (_inputCaptureState == null)
+        {
+            return;
+        }
+
+        if (_imGuiIO.WantCaptureMouse)
+        {
+            _inputCaptureState.IsMouseCaptured = true;
+        }
+
+        if (_imGuiIO.WantCaptureKeyboard)
+        {
+            _inputCaptureState.IsKeyboardCaptured = true;
+        }
     }
 
     /// <summary>
@@ -266,9 +288,9 @@ public sealed class ImGuiRenderer : IInputFilter, IDisposable
     /// <summary>
     /// Register a font that will be (re-)loaded whenever <see cref="ApplyStyleAndFonts"/> is invoked.
     /// </summary>
-    public FontRegistration RegisterFont(string ttfFilePath, float defaultSizePixels)
+    public ImGuiFontRegistration RegisterFont(string ttfFilePath, float defaultSizePixels)
     {
-        FontRegistration fontRegistration = new(ttfFilePath, defaultSizePixels);
+        ImGuiFontRegistration fontRegistration = new(ttfFilePath, defaultSizePixels);
         fontRegistrations.Add(fontRegistration);
         return fontRegistration;
     }
@@ -276,9 +298,9 @@ public sealed class ImGuiRenderer : IInputFilter, IDisposable
     /// <summary>
     /// Register a font that will be (re-)loaded whenever <see cref="ApplyStyleAndFonts"/> is invoked.
     /// </summary>
-    public FontRegistration RegisterFont(byte[] ttfData, float defaultSizePixels)
+    public ImGuiFontRegistration RegisterFont(byte[] ttfData, float defaultSizePixels)
     {
-        FontRegistration fontRegistration = new(ttfData, defaultSizePixels);
+        ImGuiFontRegistration fontRegistration = new(ttfData, defaultSizePixels);
         fontRegistrations.Add(fontRegistration);
         return fontRegistration;
     }
@@ -308,9 +330,9 @@ public sealed class ImGuiRenderer : IInputFilter, IDisposable
     /// with sizings scaled by a given amount. Loads all registered fonts, with sizes also scaled. Finally, rebuilds the font atlas.
     /// </para>
     /// <list type="bullet">
-    /// <item>NB#1: Needs to be called between drawing previous frame and starting new one, or ImGui will complain.</item>
-    /// <item>NB#2: Will clobber any font not registered with <see cref="RegisterFont"/>. Can't see an easy way to reload only a subset of fonts - looks like they can only be cleared en masse. Which is annoying.</item>
-    /// <item>NB#3: Fairly expensive because it reloads all fonts. Don't call me too often - consider debouncing if necessary (see the display settings window in the demo project for an example of this).</item>
+    /// <item>NB #1: Needs to be called between drawing previous frame and starting new one, or ImGui will complain.</item>
+    /// <item>NB #2: Will clobber any font not registered with <see cref="RegisterFont"/>. Can't see an easy way to reload only a subset of fonts - looks like they can only be cleared en masse. Which is annoying.</item>
+    /// <item>NB #3: Fairly expensive because it reloads all fonts. Don't call me too often - consider debouncing if necessary (see the display settings window in the demo project for an example of this).</item>
     /// </list>
     /// </summary>
     public void ApplyStyleAndFonts(float scale = 1f)
@@ -375,16 +397,22 @@ public sealed class ImGuiRenderer : IInputFilter, IDisposable
 
     private void HandleWindowTextInput(object? sender, TextInputEventArgs eventArgs)
     {
-        // NB: this event gets raised on the main game update thread - so never concurrently
-        // with any other update logic. as such, its safe to respond to it directly,
-        // rather than e.g. queuing up work to do the next time that BeginUpdate is invoked.
-        if (eventArgs.Character == '\t' || _inputFilter?.IsKeyboardInputCaptured == true)
+        // NB: This event gets raised on the main game update thread - so never concurrently
+        // with any other update logic. However, we still need to queue it up for processing
+        // during BeginUpdate rather than handle it directly, because of our input capture logic.
+        //
+        // If we checked *here* whether keyboard input was already captured, we could (depending on
+        // exactly when the hosting app resets capture state) easily be seeing the value from the previous
+        // frame (these events generally get fired before the main game Tick), and as such might be blocked
+        // by ourself from the previous frame! So, we just queue it up, ultimately making sure that we check
+        // capture state in just *one place* per frame, providing predictable behaviour in the face of
+        // whatever decision the hosting app wants to make regarding when it resets capture state.
+        if (eventArgs.Character == '\t')
         {
             return;
         }
 
-        ImGui.SetCurrentContext(_imGuiContext);
-        _imGuiIO.AddInputCharacter(eventArgs.Character);
+        _textInputs.Add(eventArgs);
     }
 
     private void UpdateIO(GameTime gameTime)
@@ -396,7 +424,7 @@ public sealed class ImGuiRenderer : IInputFilter, IDisposable
         _imGuiIO.DisplayFramebufferScale = new(1f, 1f);
 
         var mouseState = Mouse.GetState();
-        if (_inputFilter?.IsMouseInputCaptured != true)
+        if (_inputCaptureState?.IsMouseCaptured != true)
         {
             AddMousePosEvent();
             AddMouseWheelEvent();
@@ -409,12 +437,18 @@ public sealed class ImGuiRenderer : IInputFilter, IDisposable
         _lastMouseState = mouseState;
 
         var keyboardState = Keyboard.GetState();
-        if (_inputFilter?.IsKeyboardInputCaptured != true)
+        if (_inputCaptureState?.IsKeyboardCaptured != true)
         {
             AddKeyEvents(_lastKeyboardState, keyboardState, false);
             AddKeyEvents(keyboardState, _lastKeyboardState, true);
+
+            foreach (var textInput in _textInputs)
+            {
+                _imGuiIO.AddInputCharacter(textInput.Character);
+            }
         }
         _lastKeyboardState = keyboardState;
+        _textInputs.Clear();
 
         void AddMousePosEvent()
         {

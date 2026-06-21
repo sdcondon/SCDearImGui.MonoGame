@@ -10,8 +10,14 @@ namespace SCDearImGui.MonoGame.Demos;
 
 public class Program : Game
 {
-    // The GUI renderer - this is responsible for drawing the GUI
-    private readonly ImGuiRenderer guiRenderer;
+    // You need an ImGuiRenderer to render GUIs. In this example we actually use
+    // two separate ones. The distinction is detailed as we instantiate them, below.
+    // Also, optionally, renderers can interact with an object that keeps track of
+    // what kinds of input have been "captured". We do that in this demo, and that's
+    // what the InputCaptureState here is for. Again, details below.
+    private readonly ImGuiRenderer mainGuiRenderer;
+    private readonly ImGuiRenderer consoleWindowRenderer;
+    private readonly InputCaptureState inputCaptureState;
 
     // Main demo window
     private readonly DemoWindow demoWindow;
@@ -59,8 +65,30 @@ public class Program : Game
         };
         graphicsDeviceManager.ApplyChanges();
 
-        // Instantiate the GUI renderer. This is responsible for drawing the GUI:
-        guiRenderer = new ImGuiRenderer(this);
+        // First, instantiate an object that will keep track of when keyboard and mouse input has been
+        // used by something, and should thus not be used by anything else. This is completely optional,
+        // but can be useful in:
+        //
+        // - limiting what input the GUI is allowed to consume, if there are components that are higher
+        //   priority for capturing input.
+        // - keeping track of when input is being captured by the GUI, so that other components know
+        //   to only use it when appropriate.
+        //
+        // In our example here, we make use of this so that the console window takes priority over the
+        // main GUI (i.e. all other windows), but it could also be used to control when inputs can be
+        // used by components other than GUIs.
+        inputCaptureState = new();
+
+        // Instantiate the GUI renderer. This is responsible for drawing the main GUI:
+        mainGuiRenderer = new ImGuiRenderer(this, inputCaptureState);
+
+        // Instantiate another GUI renderer. This one will be responsible for drawing the console window,
+        // and only the console window. We use a separate renderer for this so that, when shown, the
+        // console window:
+        // - is always in front of the main GUI
+        // - is not blocked when the main GUI is showing a modal
+        // - is generally treated as a completely separate, higher priority GUI.
+        consoleWindowRenderer = new ImGuiRenderer(this, inputCaptureState);
 
         // We have classes encapsulating each of our individual demos. While most of them don't
         // have any dependency on the game itself (and we can thus use inline field initialisers for them - see above),
@@ -69,9 +97,9 @@ public class Program : Game
         // Note that this includes the main demo window, which we don't want to give hard-coded knowledge of the
         // other windows, but we do want it to include menu items for opening and closing them. So, we provide it with
         // "MenuItem" objects that include what is essentially a callback to handle being selected and unselected.
-        displaySettingsWindow = new(Window, graphicsDeviceManager, guiRenderer);
+        displaySettingsWindow = new(Window, graphicsDeviceManager, mainGuiRenderer);
         modelAndControls = new(GraphicsDevice, Content, "Models/suzanne");
-        modelViewerWindow = new(GraphicsDevice, Content, guiRenderer, "Models/suzanne");
+        modelViewerWindow = new(GraphicsDevice, Content, mainGuiRenderer, "Models/suzanne");
         demoWindow = new(this)
         {
             ExamplesMenuSections =
@@ -128,11 +156,12 @@ public class Program : Game
     /// <inheritdoc />
     protected override void LoadContent()
     {
-        // Load the GUI content - specifically, the fonts.
-        ImGui.GetIO().Fonts.AddFontDefault();
-        //guiRenderer.RegisterFont("Content\\Fonts\\Roboto-Regular.ttf", 24);
-        guiRenderer.RegisterFont(File.ReadAllBytes("Content\\Fonts\\Roboto-Regular.ttf"), 24);
-        guiRenderer.ApplyStyleAndFonts();
+        // Load the main GUI content - specifically, the font we want to use.
+        mainGuiRenderer.RegisterFont(File.ReadAllBytes("Content\\Fonts\\Roboto-Regular.ttf"), 24);
+        mainGuiRenderer.ApplyStyleAndFonts();
+
+        // Also initialize the console window renderer. Lets just use the default font for this one:
+        consoleWindowRenderer.ApplyStyleAndFonts();
 
         // A couple of our demo windows use content, too, so tell them to load what they need:
         modelAndControls.LoadContent();
@@ -142,8 +171,6 @@ public class Program : Game
     /// <inheritdoc />
     protected override void UnloadContent()
     {
-        ImGui.GetIO().Fonts.Clear();
-
         modelAndControls.UnloadContent();
         modelViewerWindow.UnloadContent();
     }
@@ -155,8 +182,20 @@ public class Program : Game
         // Display settings window can make (GUI scale) changes that need to happen outside of an ImGui frame:
         displaySettingsWindow.PreUpdate();
 
-        // BeginUpdate needs to be called every update before submitting anything to ImGui:
-        guiRenderer.BeginUpdate(gameTime);
+        // Reset our input capture state, letting the various components know that they are allowed to 
+        // use input.
+        inputCaptureState.IsKeyboardCaptured = false;
+        inputCaptureState.IsMouseCaptured = false;
+
+        // First, update the console window. We do this first so that it has priority in consuming input.
+        // Note that BeginUpdate needs to be called every update before submitting anything to a given
+        // renderer in a given frame, and EndUpdate needs to be called when eveything has been submitted.
+        consoleWindowRenderer.BeginUpdate(gameTime);
+        consoleWindow.Update();
+        consoleWindowRenderer.EndUpdate();
+
+        // With the console window done, now on to the main GUI, which renders a lot more stuff:
+        mainGuiRenderer.BeginUpdate(gameTime);
 
         // Now tell all our demos to update themselves
         // (which will make submissions to ImGui & update their state in response to GUI interactions):
@@ -172,7 +211,6 @@ public class Program : Game
         assetsBrowserWindow.Update();
         propertyEditorWindow.Update();
         simpleOverlay.Update(gameTime);
-        consoleWindow.Update();
         logWindow.Update();
         displaySettingsWindow.Update();
         simpleLayoutWindow.Update();
@@ -204,8 +242,7 @@ public class Program : Game
             ImGui.ShowAboutWindow(ref showImGuiAboutWindow);
         }
 
-        // EndUpdate needs to be called every update once all ImGui submissions have been made:
-        guiRenderer.EndUpdate();
+        mainGuiRenderer.EndUpdate();
     }
 
     /// <inheritdoc />
@@ -218,8 +255,23 @@ public class Program : Game
         // also clears graphics device state - so putting it after anything else would overwrite anything they've done:
         modelViewerWindow.DrawModelToTexture();
 
-        GraphicsDevice.Clear(Color.CornflowerBlue); // Clear the graphics device and give ourselves a nice blue background
-        modelAndControls.DrawModel(); // Draw the model part of the "model and controls" demo
-        guiRenderer.Draw(); // ..and of course draw the GUI
+        // Clear the graphics device and give ourselves a nice blue background
+        GraphicsDevice.Clear(Color.CornflowerBlue);
+
+        // Draw the model part of the "model and controls" demo
+        modelAndControls.DrawModel();
+
+        // Now draw the main GUI.
+        mainGuiRenderer.Draw();
+
+        // Now draw the console window - draw this after the main GUI so that it is always on top.
+        consoleWindowRenderer.Draw(); 
+    }
+
+    private class InputCaptureState : IInputCaptureState
+    {
+        public bool IsKeyboardCaptured { get ; set; }
+
+        public bool IsMouseCaptured { get; set; }
     }
 }

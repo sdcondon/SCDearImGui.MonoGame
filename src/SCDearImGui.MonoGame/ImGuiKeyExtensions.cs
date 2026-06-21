@@ -3,7 +3,10 @@ using Microsoft.Xna.Framework.Input;
 
 namespace SCDearImGui.MonoGame;
 
-public static class KeyExtensions
+/// <summary>
+/// Extension methods for converting between <see cref="ImGuiKey"/> and <see cref="Keys"/>.
+/// </summary>
+public static class ImGuiKeyExtensions
 {
     /// <summary>
     /// Attempts to convert a <see cref="Keys"/> value to its <see cref="ImGuiKey"/> equivalent.

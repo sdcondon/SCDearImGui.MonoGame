@@ -9,32 +9,36 @@ namespace SCDearImGui.MonoGame;
 /// </para>
 /// <para>
 /// The purpose of this class is to provide indirected access to the <see cref="ImFontPtr"/>, so that
-/// consumers don't need to concern themselves with it changing when <see cref="ImGuiRenderer.ApplyStyleAndFonts(float)"/>
-/// is called. As such, *do not* copy out <see cref="CurrentFontPtr"/> - access this property directly whenever you need it.
+/// consumers don't need to concern themselves with keeping it up to date (it will change whenever 
+/// <see cref="ImGuiRenderer.ApplyStyleAndFonts(float)"/> is called).
 /// </para>
 /// </summary>
-public class FontRegistration
+public class ImGuiFontRegistration
 {
     private readonly string? ttfFilePath;
     private readonly byte[]? ttfData;
     private readonly float defaultSizePixels;
 
-    internal FontRegistration(string ttfFilePath, float defaultSizePixels)
+    internal ImGuiFontRegistration(string ttfFilePath, float defaultSizePixels)
     {
         this.ttfFilePath = ttfFilePath;
         this.defaultSizePixels = defaultSizePixels;
     }
 
-    internal FontRegistration(byte[] ttfData, float defaultSizePixels)
+    internal ImGuiFontRegistration(byte[] ttfData, float defaultSizePixels)
     {
         this.ttfData = ttfData;
         this.defaultSizePixels = defaultSizePixels;
     }
 
     /// <summary>
-    /// The current font pointer for this registration. Note that <strong>this will change</strong>
-    /// whenever <see cref="ImGuiRenderer.ApplyStyleAndFonts(float)"/> is called. As such, do not
-    /// copy it out anywhere else - use it directly whenever you need it.
+    /// <para>
+    /// The current font pointer for this registration. 
+    /// </para>
+    /// <para>
+    /// Note that <strong>this will change</strong> whenever <see cref="ImGuiRenderer.ApplyStyleAndFonts(float)"/>
+    /// is called. As such, do not copy it out anywhere else - use it directly whenever you need it.
+    /// </para>
     /// </summary>
     public ImFontPtr CurrentFontPtr { get; private set; }
 
