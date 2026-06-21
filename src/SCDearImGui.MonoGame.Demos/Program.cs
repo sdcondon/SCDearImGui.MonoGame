@@ -194,7 +194,7 @@ public class Program : Game
         consoleWindow.Update();
         consoleWindowRenderer.EndUpdate();
 
-        // With the console window done, now on to the main GUI, which renders a lot more stuff:
+        // With the console window updated, now on to the main GUI, which renders a lot more stuff:
         mainGuiRenderer.BeginUpdate(gameTime);
 
         // Now tell all our demos to update themselves
@@ -255,10 +255,10 @@ public class Program : Game
         // also clears graphics device state - so putting it after anything else would overwrite anything they've done:
         modelViewerWindow.DrawModelToTexture();
 
-        // Clear the graphics device and give ourselves a nice blue background
+        // Clear the graphics device and give ourselves a nice blue background.
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
-        // Draw the model part of the "model and controls" demo
+        // Draw the model part of the "model and controls" demo.
         modelAndControls.DrawModel();
 
         // Now draw the main GUI.
