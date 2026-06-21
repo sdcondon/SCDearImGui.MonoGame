@@ -19,9 +19,8 @@ Changes from MonoGame demo proj in ImGuiNET:
   * Richer functionality around font and style management - to allow for easily scaling the GUI. Font atlas rebuild
     method replaced with a method for storing a reference style for scaling, a method for registering a font, and a method
     for applying a particular scale to the GUI and fonts.
-  * Support for a renderer heirarchy, where one renderer can defer to another for input capture. Allows for e.g. a 
-    main GUI renderer, in addition to another for a console window (which should always be on top, not be disabled when
-    the main one is showing a modal, etc).
+  * Support for respecting and updating broader input capture state - not using input if it has already been consumed
+    by something else, and informing other components that the GUI has captured input.
 * Extensive demos. Started by rewriting those found 
   [here](https://github.com/tsMezotic/MonoGame.ImGuiNet/blob/main/Monogame.ImGuiNetSamples/Game1.cs) (themselves ported from
   the native examples) for better encapsulation and general code cleanliness, and added a several more - some others ported from
