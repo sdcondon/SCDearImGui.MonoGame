@@ -183,8 +183,25 @@ public sealed class ImGuiRenderer : IDisposable
     public void EndUpdate()
     {
         UpdateInputCaptureState();
-        ImGui.SetCurrentContext(_imGuiContext);
         ImGui.EndFrame();
+    }
+
+    /// <summary>
+    /// <para>
+    /// Sets the ImGui context owned by this renderer as the current one.
+    /// </para>
+    /// <para>
+    /// This happens automatically when calling all of the other public methods of this class.
+    /// But you might have a need to do this manually if you're about to invoke an <see cref="ImGui"/>
+    /// method, and the last <see cref="ImGuiRenderer"/> method you invoked was possibly for a different
+    /// instance than the one you're trying to interact with now. Obviously, this is only going to 
+    /// be a risk when you've got more than one renderer in your app. If you've only got one, you'll
+    /// never need to invoke this method.
+    /// </para>
+    /// </summary>
+    public void SetCurrentContext()
+    {
+        ImGui.SetCurrentContext(_imGuiContext);
     }
 
     /// <summary>
@@ -195,12 +212,14 @@ public sealed class ImGuiRenderer : IDisposable
     /// </para>
     /// <para>
     /// This is automatically done during <see cref="EndUpdate"/> but, depending on the 
-    /// structure of your update logic, you may want or need to also trigger it earlier, when
+    /// structure of your update logic, you may want/need to also trigger it earlier, when
     /// only some of your GUI elements have been submitted.
     /// </para>
     /// </summary>
     public void UpdateInputCaptureState()
     {
+        ImGui.SetCurrentContext(_imGuiContext);
+
         if (_inputCaptureState == null)
         {
             return;
@@ -385,7 +404,7 @@ public sealed class ImGuiRenderer : IDisposable
         // Store scale for querying by consumers:
         currentUiScale = scale;
 
-        Trace.Write($"{_imGuiIO.Fonts.Fonts.Size} font variants loaded in {fontReloadStopwatch.ElapsedMilliseconds}ms.", TraceCategory);
+        Trace.Write($"{_imGuiIO.Fonts.Fonts.Size} font variant{(_imGuiIO.Fonts.Fonts.Size != 1 ? "s" : string.Empty)} loaded in {fontReloadStopwatch.ElapsedMilliseconds}ms.", TraceCategory);
     }
 
     /// <inheritdoc/>

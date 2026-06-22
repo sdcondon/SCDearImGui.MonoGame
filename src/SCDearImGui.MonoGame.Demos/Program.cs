@@ -65,12 +65,12 @@ public class Program : Game
         };
         graphicsDeviceManager.ApplyChanges();
 
-        // First, instantiate an object that will keep track of when keyboard and mouse input has been
-        // used by something, and should thus not be used by anything else. This is completely optional,
-        // but can be useful in:
+        // Now instantiate an object that will keep track of when keyboard and mouse input has been
+        // used by something, and should thus not be used by anything else. ImGuiRenderer will work just
+        // fine without being passed such an object, but it can be useful to:
         //
-        // - limiting what input the GUI is allowed to consume, if there are components that are higher
-        //   priority for capturing input.
+        // - limit what input the GUI is allowed to consume (if there are components that are higher
+        //   priority for capturing input).
         // - keeping track of when input is being captured by the GUI, so that other components know
         //   to only use it when appropriate.
         //
@@ -96,7 +96,8 @@ public class Program : Game
         //
         // Note that this includes the main demo window, which we don't want to give hard-coded knowledge of the
         // other windows, but we do want it to include menu items for opening and closing them. So, we provide it with
-        // "MenuItem" objects that include what is essentially a callback to handle being selected and unselected.
+        // "MenuItem" objects that include what is essentially a callback (well, two callbacks in one, via some LINQ-y
+        // goodness) to handle being selected and unselected.
         displaySettingsWindow = new(Window, graphicsDeviceManager, mainGuiRenderer);
         modelAndControls = new(GraphicsDevice, Content, "Models/suzanne");
         modelViewerWindow = new(GraphicsDevice, Content, mainGuiRenderer, "Models/suzanne");
@@ -266,7 +267,7 @@ public class Program : Game
         mainGuiRenderer.Draw();
 
         // Now draw the console window - draw this after the main GUI so that it is always on top.
-        consoleWindowRenderer.Draw(); 
+        consoleWindowRenderer.Draw();
     }
 
     private class InputCaptureState : IInputCaptureState
