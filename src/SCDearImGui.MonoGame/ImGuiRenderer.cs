@@ -167,7 +167,7 @@ public sealed class ImGuiRenderer : IDisposable
     /// </summary>
     public void BeginUpdate(GameTime gameTime)
     {
-        ImGui.SetCurrentContext(_imGuiContext);
+        SetCurrentContext();
         UpdateIO(gameTime);
         ImGui.NewFrame();
     }
@@ -218,7 +218,9 @@ public sealed class ImGuiRenderer : IDisposable
     /// </summary>
     public void UpdateInputCaptureState()
     {
-        ImGui.SetCurrentContext(_imGuiContext);
+        // Yes, we don't NEED the context to be the current one here,
+        // but it makes for consistent behaviour.
+        SetCurrentContext();
 
         if (_inputCaptureState == null)
         {
@@ -246,7 +248,7 @@ public sealed class ImGuiRenderer : IDisposable
     /// </summary>
     public void Draw()
     {
-        ImGui.SetCurrentContext(_imGuiContext);
+        SetCurrentContext();
 
         ImGui.Render();
         var drawData = ImGui.GetDrawData();
@@ -282,6 +284,10 @@ public sealed class ImGuiRenderer : IDisposable
     /// </summary>
     public nint RegisterTexture(Texture2D texture)
     {
+        // Yes, we don't NEED the context to be the current one here,
+        // but it makes for consistent behaviour.
+        SetCurrentContext();
+
         var id = _nextTextureId++;
         _texturesById.Add(id, texture);
         return id;
@@ -294,6 +300,10 @@ public sealed class ImGuiRenderer : IDisposable
     /// <returns>True if the texture identifier was valid and a texture was unregistered. Otherwise false.</returns>
     public bool UnregisterTexture(nint textureId)
     {
+        // Yes, we don't NEED the context to be the current one here,
+        // but it makes for consistent behaviour.
+        SetCurrentContext();
+
         bool textureRemoved;
         if (textureRemoved = _texturesById.TryGetValue(textureId, out var texture))
         {
@@ -309,6 +319,10 @@ public sealed class ImGuiRenderer : IDisposable
     /// </summary>
     public ImGuiFontRegistration RegisterFont(string ttfFilePath, float defaultSizePixels)
     {
+        // Yes, we don't NEED the context to be the current one here,
+        // but it makes for consistent behaviour.
+        SetCurrentContext();
+
         ImGuiFontRegistration fontRegistration = new(ttfFilePath, defaultSizePixels);
         fontRegistrations.Add(fontRegistration);
         return fontRegistration;
@@ -319,6 +333,10 @@ public sealed class ImGuiRenderer : IDisposable
     /// </summary>
     public ImGuiFontRegistration RegisterFont(byte[] ttfData, float defaultSizePixels)
     {
+        // Yes, we don't NEED the context to be the current one here,
+        // but it makes for consistent behaviour.
+        SetCurrentContext();
+
         ImGuiFontRegistration fontRegistration = new(ttfData, defaultSizePixels);
         fontRegistrations.Add(fontRegistration);
         return fontRegistration;
@@ -337,6 +355,8 @@ public sealed class ImGuiRenderer : IDisposable
     /// </summary>
     public void StoreReferenceStyle()
     {
+        SetCurrentContext();
+
         unsafe
         {
             referenceStyle = *ImGui.GetStyle().NativePtr;
