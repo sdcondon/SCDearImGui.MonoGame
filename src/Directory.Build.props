@@ -1,0 +1,24 @@
+<Project>
+	<PropertyGroup>
+		<Configurations>Debug DesktopGL;Debug WindowsDX;Release DesktopGL;Release WindowsDX</Configurations>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Debug DesktopGL' Or '$(Configuration)' == 'Release DesktopGL'">
+		<TargetFramework>net9.0</TargetFramework>
+		<MonoGamePkg>DesktopGL</MonoGamePkg>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)' == 'Debug WindowsDX' Or '$(Configuration)' == 'Release WindowsDX'">
+		<TargetFramework>net9.0-windows</TargetFramework>
+		<MonoGamePkg>WindowsDX</MonoGamePkg>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)'=='Debug DesktopGL' Or '$(Configuration)' == 'Debug WindowsDX'">
+		<Optimize>False</Optimize>
+		<DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)'=='Release DesktopGL' Or '$(Configuration)' == 'Release WindowsDX'">
+		<Optimize>True</Optimize>
+		<DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
+	</PropertyGroup>
+</Project>

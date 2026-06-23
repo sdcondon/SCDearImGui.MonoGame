@@ -1,10 +1,19 @@
 <Solution>
+  <Configurations>
+    <BuildType Name="Debug DesktopGL" />
+    <BuildType Name="Debug WindowsDX" />
+    <BuildType Name="Release DesktopGL" />
+    <BuildType Name="Release WindowsDX" />
+  </Configurations>
   <Folder Name="/Repo Items/">
     <File Path="../.gitattributes" />
     <File Path="../.github/workflows/onPush.yml" />
     <File Path="../.github/workflows/onRelease.yml" />
     <File Path="../.gitignore" />
     <File Path="../README.md" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Build.props" />
   </Folder>
   <Project Path="SCDearImGui.MonoGame.Benchmarks/SCDearImGui.MonoGame.Benchmarks.csproj" />
   <Project Path="SCDearImGui.MonoGame.Demos/SCDearImGui.MonoGame.Demos.csproj" />
