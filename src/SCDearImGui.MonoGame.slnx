@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/Repo Items/">
+    <File Path="../.gitattributes" />
+    <File Path="../.github/workflows/onPush.yml" />
+    <File Path="../.github/workflows/onRelease.yml" />
+    <File Path="../.gitignore" />
+    <File Path="../README.md" />
+  </Folder>
+  <Project Path="SCDearImGui.MonoGame.Benchmarks/SCDearImGui.MonoGame.Benchmarks.csproj" />
+  <Project Path="SCDearImGui.MonoGame.Demos/SCDearImGui.MonoGame.Demos.csproj" />
+  <Project Path="SCDearImGui.MonoGame/SCDearImGui.MonoGame.csproj" />
+</Solution>
