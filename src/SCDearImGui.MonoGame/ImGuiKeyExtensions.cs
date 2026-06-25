@@ -29,8 +29,8 @@ public static class ImGuiKeyExtensions
             Keys.End => ImGuiKey.End,
             Keys.Home => ImGuiKey.Home,
             Keys.Left => ImGuiKey.LeftArrow,
-            Keys.Right => ImGuiKey.RightArrow,
             Keys.Up => ImGuiKey.UpArrow,
+            Keys.Right => ImGuiKey.RightArrow,
             Keys.Down => ImGuiKey.DownArrow,
             Keys.PrintScreen => ImGuiKey.PrintScreen,
             Keys.Insert => ImGuiKey.Insert,
@@ -60,6 +60,9 @@ public static class ImGuiKeyExtensions
             Keys.OemCloseBrackets => ImGuiKey.RightBracket,
             Keys.OemPipe => ImGuiKey.Backslash,
             Keys.OemQuotes => ImGuiKey.Apostrophe,
+            // My UK Alienware laptop keyboard has some weird key codes - the key left of 1
+            // is apparently Oem8, which isn't mapped to anything else here, so meh, why not.
+            Keys.Oem8 => ImGuiKey.GraveAccent,
             _ => null,
         };
     }
