@@ -26,17 +26,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="ImGui.NET" Version="1.91.6.1" />
-	</ItemGroup>
-
-	<ItemGroup Condition="'$(MonoGamePlatform)' == 'DesktopVK'">
 		<PackageReference Include="MonoGame.Framework.Native" Version="3.8.*" />
-		<PackageReference Include="MonoGame.Runtime.Mac.Vulkan" Version="3.8.*" />
-		<PackageReference Include="MonoGame.Runtime.Linux.Vulkan" Version="3.8.*" />
-		<PackageReference Include="MonoGame.Runtime.Windows.Vulkan" Version="3.8.*" />
-	</ItemGroup>
-	<ItemGroup Condition="'$(MonoGamePlatform)' == 'WindowsDX12'">
-		<PackageReference Include="MonoGame.Framework.Native" Version="3.8.*" />
-		<PackageReference Include="MonoGame.Runtime.Windows.DX12" Version="3.8.*" />
 	</ItemGroup>
 
 </Project>

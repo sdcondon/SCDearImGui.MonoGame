@@ -63,7 +63,7 @@ public class Program : Game
 
         // NB: Under DX12, the "default" adapter isn't necessarily one we want to grab
         // current display mode from. So check for the first one with a monitor handle instead.
-        var displayAdapter = GraphicsAdapter.Adapters.First(a => a.MonitorHandle != 0);
+        var displayAdapter = GraphicsAdapter.Adapters.First(a => a.SupportedDisplayModes.Any());
         var graphicsDeviceManager = new GraphicsDeviceManager(this)
         {
             PreferredBackBufferWidth = displayAdapter.CurrentDisplayMode.Width,
