@@ -10,7 +10,7 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.NETCore.App" Version="2.2.8" /> <!-- just overrides a dependency of Content.Pipeline with a severe vuln -->
-		<PackageReference Include="MonoGame.Framework.Content.Pipeline" Version="3.8.5" />
+		<PackageReference Include="MonoGame.Framework.Content.Pipeline" Version="3.8.*" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(MonoGamePlatform)' == 'DesktopVK'">
 		<PackageReference Include="MonoGame.Runtime.Mac.Vulkan" Version="3.8.*" />
