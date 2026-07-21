@@ -1,23 +1,25 @@
 <Project>
 	<PropertyGroup>
-		<Configurations>Debug DesktopGL;Debug WindowsDX;Release DesktopGL;Release WindowsDX</Configurations>
+		<Configurations>Debug DesktopVK;Debug WindowsDX12;Release DesktopVK;Release WindowsDX12</Configurations>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)' == 'Debug DesktopGL' Or '$(Configuration)' == 'Release DesktopGL'">
-		<TargetFramework>net9.0</TargetFramework>
-		<MonoGamePkg>DesktopGL</MonoGamePkg>
+	<PropertyGroup Condition="'$(Configuration)' == 'Debug DesktopVK' Or '$(Configuration)' == 'Release DesktopVK'">
+		<TargetFramework>net10.0</TargetFramework>
+		<MonoGamePlatform>DesktopVK</MonoGamePlatform>
+		<DefineConstants>$(DefineConstants);DESKTOPVK</DefineConstants>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)' == 'Debug WindowsDX' Or '$(Configuration)' == 'Release WindowsDX'">
-		<TargetFramework>net9.0-windows</TargetFramework>
-		<MonoGamePkg>WindowsDX</MonoGamePkg>
+	<PropertyGroup Condition="'$(Configuration)' == 'Debug WindowsDX12' Or '$(Configuration)' == 'Release WindowsDX12'">
+		<TargetFramework>net10.0-windows</TargetFramework>
+		<MonoGamePlatform>WindowsDX12</MonoGamePlatform>
+		<DefineConstants>$(DefineConstants);WINDOWSDX12</DefineConstants>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)'=='Debug DesktopGL' Or '$(Configuration)' == 'Debug WindowsDX'">
+	<PropertyGroup Condition="'$(Configuration)'=='Debug DesktopVK' Or '$(Configuration)' == 'Debug WindowsDX12'">
 		<Optimize>False</Optimize>
 		<DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)'=='Release DesktopGL' Or '$(Configuration)' == 'Release WindowsDX'">
+	<PropertyGroup Condition="'$(Configuration)'=='Release DesktopVK' Or '$(Configuration)' == 'Release WindowsDX12'">
 		<Optimize>True</Optimize>
 		<DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
 	</PropertyGroup>

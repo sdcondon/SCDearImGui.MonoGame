@@ -1,9 +1,9 @@
 <Solution>
   <Configurations>
-    <BuildType Name="Debug DesktopGL" />
-    <BuildType Name="Debug WindowsDX" />
-    <BuildType Name="Release DesktopGL" />
-    <BuildType Name="Release WindowsDX" />
+    <BuildType Name="Debug DesktopVK" />
+    <BuildType Name="Debug WindowsDX12" />
+    <BuildType Name="Release DesktopVK" />
+    <BuildType Name="Release WindowsDX12" />
   </Configurations>
   <Folder Name="/Repo Items/">
     <File Path="../.gitattributes" />

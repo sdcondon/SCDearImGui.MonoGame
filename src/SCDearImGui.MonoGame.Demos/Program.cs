@@ -1,10 +1,14 @@
 ﻿using ImGuiNET;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content.Pipeline;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Framework.Content.Pipeline.Builder;
+using SCDearImGui.MonoGame.Demos.Content;
 using SCDearImGui.MonoGame.Demos.GuiElements.Concepts;
 using SCDearImGui.MonoGame.Demos.GuiElements.DemoWindow;
 using SCDearImGui.MonoGame.Demos.GuiElements.MiniApps;
 using System.IO;
+using System.Linq;
 
 namespace SCDearImGui.MonoGame.Demos;
 
@@ -57,10 +61,13 @@ public class Program : Game
         IsMouseVisible = true;
         Content.RootDirectory = "Content";
 
+        // NB: Under DX12, the "default" adapter isn't necessarily one we want to grab
+        // current display mode from. So check for the first one with a monitor handle instead.
+        var displayAdapter = GraphicsAdapter.Adapters.First(a => a.MonitorHandle != 0);
         var graphicsDeviceManager = new GraphicsDeviceManager(this)
         {
-            PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width,
-            PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height,
+            PreferredBackBufferWidth = displayAdapter.CurrentDisplayMode.Width,
+            PreferredBackBufferHeight = displayAdapter.CurrentDisplayMode.Height,
             IsFullScreen = true
         };
         graphicsDeviceManager.ApplyChanges();
@@ -150,6 +157,10 @@ public class Program : Game
     /// </summary>
     public static void Main()
     {
+        // To keep the demo as simple as possible, we just build the content as the app starts up,
+        // rather than having a separate console app and custom build target:
+        BuildContent();
+
         using var game = new Program();
         game.Run();
     }
@@ -268,6 +279,31 @@ public class Program : Game
 
         // Now draw the console window - draw this after the main GUI so that it is always on top.
         consoleWindowRenderer.Draw();
+    }
+
+    private static void BuildContent()
+    {
+        Builder builder = new()
+        {
+            Logger = new TraceBuildLogger(),
+        };
+
+        // NB: the file paths here obviously make assumptions about where the app is running relative to the 
+        // source. I'm not envisioning anyone trying to run this outside of their IDE, so figure that this is fine
+        // for now at least.
+        var built = builder.Run(new ContentBuilderParams
+        {
+            Mode = ContentBuilderMode.Builder,
+            SourceDirectory = Path.Combine("..", "..", "..", "Content"),
+            IntermediateDirectory = Path.Combine("..", "..", "..", "obj", "Content"),
+            OutputDirectory = ".",
+            GraphicsProfile = GraphicsProfile.HiDef,
+#if WINDOWSDX12
+            Platform = TargetPlatform.WindowsDX12,
+#elif DESKTOPVK
+            Platform = TargetPlatform.DesktopVK,
+#endif
+        });
     }
 
     private class InputCaptureState : IInputCaptureState

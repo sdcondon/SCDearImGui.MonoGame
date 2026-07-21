@@ -25,11 +25,11 @@ jobs:
       run: echo VERSION=${GITHUB_REF/refs\/tags\//} >> $GITHUB_OUTPUT
 
     - name: Build
-      run: dotnet build -c "Release DesktopGL" -p:Version=${{ steps.getPackageVersion.outputs.VERSION }}
+      run: dotnet build -c "Release DesktopVK" -p:Version=${{ steps.getPackageVersion.outputs.VERSION }}
       working-directory: ./src/SCDearImGui.MonoGame
 
     - name: Build
-      run: dotnet build -c "Release WindowsDX" -p:Version=${{ steps.getPackageVersion.outputs.VERSION }}
+      run: dotnet build -c "Release WindowsDX12" -p:Version=${{ steps.getPackageVersion.outputs.VERSION }}
       working-directory: ./src/SCDearImGui.MonoGame
 
     - name: Push packages

@@ -1,24 +1,33 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <RollForward>Major</RollForward>
-    <PublishReadyToRun>false</PublishReadyToRun>
-    <TieredCompilation>false</TieredCompilation>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <DefaultItemExcludes>$(DefaultItemExcludes);Content\obj\**;Content\bin\**</DefaultItemExcludes>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Remove="Content\Fonts\Roboto-Regular.ttf" />
-    <Content Include="Content\Fonts\Roboto-Regular.ttf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="MonoGame.Framework.$(MonoGamePkg)" Version="3.8.4.1" />
-    <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.4.1" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\SCDearImGui.MonoGame\SCDearImGui.MonoGame.csproj" />
-  </ItemGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<RollForward>Major</RollForward>
+		<PublishReadyToRun>false</PublishReadyToRun>
+		<TieredCompilation>false</TieredCompilation>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<DefaultItemExcludes>$(DefaultItemExcludes);Content\obj\**;Content\bin\**</DefaultItemExcludes>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NETCore.App" Version="2.2.8" /> <!-- just overrides a dependency of Content.Pipeline with a severe vuln -->
+		<PackageReference Include="MonoGame.Framework.Content.Pipeline" Version="3.8.5" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(MonoGamePlatform)' == 'DesktopVK'">
+		<PackageReference Include="MonoGame.Framework.Native" Version="3.8.*" />
+		<PackageReference Include="MonoGame.Runtime.Mac.Vulkan" Version="3.8.*" />
+		<PackageReference Include="MonoGame.Runtime.Linux.Vulkan" Version="3.8.*" />
+		<PackageReference Include="MonoGame.Runtime.Windows.Vulkan" Version="3.8.*" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(MonoGamePlatform)' == 'WindowsDX12'">
+		<PackageReference Include="MonoGame.Framework.Native" Version="3.8.*" />
+		<PackageReference Include="MonoGame.Runtime.Windows.DX12" Version="3.8.*" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\SCDearImGui.MonoGame\SCDearImGui.MonoGame.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Update="Content\Fonts\Roboto-Regular.ttf">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 </Project>
