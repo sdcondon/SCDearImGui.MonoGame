@@ -158,8 +158,23 @@ public class Program : Game
     public static void Main()
     {
         // To keep the demo as simple as possible, we just build the content as the app starts up,
-        // rather than having a separate console app and custom build target:
-        BuildContent();
+        // rather than having a separate console app and custom build target.
+        // NB: the file paths here obviously make assumptions about where the app is running relative to the 
+        // source. I'm not envisioning anyone trying to run this outside of their IDE, so figure that this is fine
+        // for now at least.
+        new DemoContentBuilder().Run(new ContentBuilderParams
+        {
+            Mode = ContentBuilderMode.Builder,
+            SourceDirectory = Path.Combine("..", "..", "..", "Content"),
+            IntermediateDirectory = Path.Combine("..", "..", "..", "obj", "Content"),
+            OutputDirectory = ".",
+            GraphicsProfile = GraphicsProfile.HiDef,
+#if WINDOWSDX12
+            Platform = TargetPlatform.WindowsDX12,
+#elif DESKTOPVK
+            Platform = TargetPlatform.DesktopVK,
+#endif
+        });
 
         using var game = new Program();
         game.Run();
@@ -279,31 +294,6 @@ public class Program : Game
 
         // Now draw the console window - draw this after the main GUI so that it is always on top.
         consoleWindowRenderer.Draw();
-    }
-
-    private static void BuildContent()
-    {
-        Builder builder = new()
-        {
-            Logger = new TraceBuildLogger(),
-        };
-
-        // NB: the file paths here obviously make assumptions about where the app is running relative to the 
-        // source. I'm not envisioning anyone trying to run this outside of their IDE, so figure that this is fine
-        // for now at least.
-        var built = builder.Run(new ContentBuilderParams
-        {
-            Mode = ContentBuilderMode.Builder,
-            SourceDirectory = Path.Combine("..", "..", "..", "Content"),
-            IntermediateDirectory = Path.Combine("..", "..", "..", "obj", "Content"),
-            OutputDirectory = ".",
-            GraphicsProfile = GraphicsProfile.HiDef,
-#if WINDOWSDX12
-            Platform = TargetPlatform.WindowsDX12,
-#elif DESKTOPVK
-            Platform = TargetPlatform.DesktopVK,
-#endif
-        });
     }
 
     private class InputCaptureState : IInputCaptureState
