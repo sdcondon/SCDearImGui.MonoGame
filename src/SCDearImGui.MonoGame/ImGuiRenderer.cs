@@ -576,7 +576,6 @@ public sealed class ImGuiRenderer : IDisposable
 
             var newVertexCount = (int)(drawData.TotalVtxCount * 1.5f);
             _vertexBuffer = new VertexBuffer(_graphicsDevice, ImDrawVertexDeclaration, newVertexCount, BufferUsage.None);
-            //_vertexData = new byte[newVertexCount * ImDrawVertexStride];
         }
 
         if (drawData.TotalIdxCount > _indexBuffer.IndexCount)
@@ -588,7 +587,8 @@ public sealed class ImGuiRenderer : IDisposable
             _indexData = new byte[newIndexCount * sizeof(ushort)];
         }
 
-        // Copy ImGui's vertices and indices to a set of managed byte arrays
+        // Copy vertex and index data to our buffers
+        // TODO: keep an eye on whether any MonoGame update adds support for Spans to index buffers.
         int vtxOffset = 0;
         int idxOffset = 0;
 
@@ -608,8 +608,6 @@ public sealed class ImGuiRenderer : IDisposable
             idxOffset += cmdList.IdxBuffer.Size;
         }
 
-        // Copy the managed byte arrays to the GPU index buffer
-        // TODO: keep an eye on whether any MonoGame update adds support for Spans to index buffers.
         _indexBuffer.SetData(_indexData, 0, drawData.TotalIdxCount * sizeof(ushort));
     }
 
