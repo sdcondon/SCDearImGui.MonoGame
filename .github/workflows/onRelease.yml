@@ -28,10 +28,6 @@ jobs:
       run: dotnet build -c "Release DesktopVK" -p:Version=${{ steps.getPackageVersion.outputs.VERSION }}
       working-directory: ./src/SCDearImGui.MonoGame
 
-    - name: Build
-      run: dotnet build -c "Release WindowsDX12" -p:Version=${{ steps.getPackageVersion.outputs.VERSION }}
-      working-directory: ./src/SCDearImGui.MonoGame
-
     - name: Push packages
       run: dotnet nuget push "**/*.nupkg" -s "https://nuget.pkg.github.com/sdcondon" -k "${{ secrets.GITHUB_TOKEN }}"
       working-directory: ./src
