@@ -13,9 +13,14 @@
     <File Path="../README.md" />
   </Folder>
   <Folder Name="/Solution Items/">
-    <File Path="Directory.Build.props" />
+    <File Path="Exe.props" />
   </Folder>
   <Project Path="SCDearImGui.MonoGame.Benchmarks/SCDearImGui.MonoGame.Benchmarks.csproj" />
   <Project Path="SCDearImGui.MonoGame.Demos/SCDearImGui.MonoGame.Demos.csproj" />
-  <Project Path="SCDearImGui.MonoGame/SCDearImGui.MonoGame.csproj" />
+  <Project Path="SCDearImGui.MonoGame/SCDearImGui.MonoGame.csproj">
+    <BuildType Solution="Debug DesktopVK|*" Project="Debug" />
+    <BuildType Solution="Debug WindowsDX12|*" Project="Debug" />
+    <BuildType Solution="Release DesktopVK|*" Project="Release" />
+    <BuildType Solution="Release WindowsDX12|*" Project="Release" />
+  </Project>
 </Solution>

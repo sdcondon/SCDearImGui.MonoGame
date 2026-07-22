@@ -1,4 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+	
+	<Import Project="../Exe.props"/>
+
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
 		<RollForward>Major</RollForward>

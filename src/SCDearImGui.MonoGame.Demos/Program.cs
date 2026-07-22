@@ -160,8 +160,8 @@ public class Program : Game
         // To keep the demo as simple as possible, we just build the content as the app starts up,
         // rather than having a separate console app and custom build target.
         // NB: the file paths here obviously make assumptions about where the app is running relative to the 
-        // source. I'm not envisioning anyone trying to run this outside of their IDE, so figure that this is fine
-        // for now at least.
+        // source. I'm not envisioning anyone trying to run this demo outside of their IDE, so figure that
+        // this is fine for now at least.
         new DemoContentBuilder().Run(new ContentBuilderParams
         {
             Mode = ContentBuilderMode.Builder,

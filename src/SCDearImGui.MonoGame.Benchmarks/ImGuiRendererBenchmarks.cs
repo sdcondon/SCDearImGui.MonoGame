@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace SCDearImGui.MonoGame.Benchmarks;
 
-// weirdness: first one (only) to run seems a bit slower? So put imgui.net one first cos thats way slower anyways..
+// weirdness: first one (only) to run seems a bit slower? So put imgui.net one first cos thats way slower anyways - but of course fair test means need to switch em up to be sure..
 [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Benchmark methods cannot be static")]
 public class ImGuiRendererBenchmarks
 {
