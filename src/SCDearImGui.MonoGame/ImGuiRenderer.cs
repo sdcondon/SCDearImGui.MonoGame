@@ -38,7 +38,6 @@ public sealed class ImGuiRenderer : IDisposable
 
     private readonly List<ImGuiFontRegistration> fontRegistrations = [];
 
-    private byte[] _vertexData = new byte[INITIAL_BUFFER_SIZE * ImDrawVertexStride];
     private VertexBuffer _vertexBuffer;
     private byte[] _indexData = new byte[INITIAL_BUFFER_SIZE * sizeof(ushort)];
     private IndexBuffer _indexBuffer;
@@ -577,7 +576,7 @@ public sealed class ImGuiRenderer : IDisposable
 
             var newVertexCount = (int)(drawData.TotalVtxCount * 1.5f);
             _vertexBuffer = new VertexBuffer(_graphicsDevice, ImDrawVertexDeclaration, newVertexCount, BufferUsage.None);
-            _vertexData = new byte[newVertexCount * ImDrawVertexStride];
+            //_vertexData = new byte[newVertexCount * ImDrawVertexStride];
         }
 
         if (drawData.TotalIdxCount > _indexBuffer.IndexCount)
@@ -597,17 +596,20 @@ public sealed class ImGuiRenderer : IDisposable
         {
             ImDrawListPtr cmdList = drawData.CmdLists[cmdListIx];
 
-            Marshal.Copy(cmdList.VtxBuffer.Data, _vertexData, vtxOffset * ImDrawVertexStride, cmdList.VtxBuffer.Size * ImDrawVertexStride);
+            unsafe
+            {
+                Span<ImDrawVert> vData = new(cmdList.VtxBuffer.Data.ToPointer(), cmdList.VtxBuffer.Size);
+                _vertexBuffer.SetData(vtxOffset, vData);
+            }
+
             Marshal.Copy(cmdList.IdxBuffer.Data, _indexData, idxOffset * sizeof(ushort), cmdList.IdxBuffer.Size * sizeof(ushort));
 
             vtxOffset += cmdList.VtxBuffer.Size;
             idxOffset += cmdList.IdxBuffer.Size;
         }
 
-        // Copy the managed byte arrays to the GPU vertex and index buffers
-        // TODO: keep an eye on whether any MonoGame update adds support for Span<byte> instead of byte[].
-        // Then wouldn't need the intermediate arrays at all; could just set data in the loop above.
-        _vertexBuffer.SetData(_vertexData, 0, drawData.TotalVtxCount * ImDrawVertexStride);
+        // Copy the managed byte arrays to the GPU index buffer
+        // TODO: keep an eye on whether any MonoGame update adds support for Spans to index buffers.
         _indexBuffer.SetData(_indexData, 0, drawData.TotalIdxCount * sizeof(ushort));
     }
 
