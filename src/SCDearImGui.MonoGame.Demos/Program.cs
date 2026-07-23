@@ -62,7 +62,7 @@ public class Program : Game
         Content.RootDirectory = "Content";
 
         // NB: Under DX12, the "default" adapter isn't necessarily one we want to grab
-        // current display mode from. So check for the first one with a monitor handle instead.
+        // current display mode from. So check for the first one with supported display modes instead.
         var displayAdapter = GraphicsAdapter.Adapters.First(a => a.SupportedDisplayModes.Any());
         var graphicsDeviceManager = new GraphicsDeviceManager(this)
         {
