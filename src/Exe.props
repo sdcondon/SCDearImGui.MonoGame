@@ -3,24 +3,30 @@
 		<Configurations>Debug DesktopVK;Debug WindowsDX12;Release DesktopVK;Release WindowsDX12</Configurations>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)' == 'Debug DesktopVK' Or '$(Configuration)' == 'Release DesktopVK'">
+	<!-- DEBUG PROPS -->
+	<PropertyGroup Condition="$(Configuration.StartsWith('Debug'))">
+		<Optimize>False</Optimize>
+		<DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
+	</PropertyGroup>
+
+	<!-- RELEASE PROPS -->
+	<PropertyGroup Condition="$(Configuration.StartsWith('Release'))">
+		<Optimize>True</Optimize>
+		<DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
+	</PropertyGroup>
+
+	<!-- DESKTOP VK PROPS -->
+	<PropertyGroup Condition="$(Configuration.EndsWith('DesktopVK'))">
 		<TargetFramework>net10.0</TargetFramework>
 		<MonoGamePlatform>DesktopVK</MonoGamePlatform>
 		<DefineConstants>$(DefineConstants);DESKTOPVK</DefineConstants>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)' == 'Debug WindowsDX12' Or '$(Configuration)' == 'Release WindowsDX12'">
+
+	<!-- WINDOWS DX12 PROPS -->
+	<PropertyGroup Condition="$(Configuration.EndsWith('WindowsDX12'))">
 		<TargetFramework>net10.0-windows</TargetFramework>
 		<MonoGamePlatform>WindowsDX12</MonoGamePlatform>
 		<DefineConstants>$(DefineConstants);WINDOWSDX12</DefineConstants>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)'=='Debug DesktopVK' Or '$(Configuration)' == 'Debug WindowsDX12'">
-		<Optimize>False</Optimize>
-		<DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)'=='Release DesktopVK' Or '$(Configuration)' == 'Release WindowsDX12'">
-		<Optimize>True</Optimize>
-		<DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
-	</PropertyGroup>
 </Project>
