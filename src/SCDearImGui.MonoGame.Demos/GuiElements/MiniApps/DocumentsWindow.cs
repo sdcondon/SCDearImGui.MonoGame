@@ -20,6 +20,7 @@ class DocumentsWindow(ExampleDocumentStore documentStore, bool isOpen = false)
     {
         if (!IsOpen) return;
 
+        SetNextWindowSize(new(430, 450), ImGuiCond.FirstUseEver);
         if (Begin("Example: Documents", ref IsOpen, ImGuiWindowFlags.MenuBar))
         {
             UpdateMenuBar();

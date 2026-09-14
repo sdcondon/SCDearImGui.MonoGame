@@ -23,10 +23,10 @@ public class Program : Game
     private readonly ImGuiRenderer consoleWindowRenderer;
     private readonly InputCaptureState inputCaptureState;
 
-    // Main demo window
+    // Field that encapsulates the main demo window:
     private readonly DemoWindow demoWindow;
 
-    // Concept demos
+    // Fields that encapsulate the "concept" demo windows:
     private readonly MainMenuBar mainMenuBar = new();
     private readonly AutoResizeWindow autoResizeWindow = new();
     private readonly ConstrainedResizeWindow constrainedResizeWindow = new();
@@ -34,7 +34,7 @@ public class Program : Game
     private readonly CustomRenderingWindow customRenderingWindow = new();
     private readonly LongTextDisplayWindow longTextDisplayWindow = new();
 
-    // Mini app demos
+    // Fields that encapsulate the "mini app" demo windows:
     private readonly DisplaySettingsWindow displaySettingsWindow;
     private readonly ModelAndControls modelAndControls;
     private readonly ModelViewerWindow modelViewerWindow;
@@ -47,7 +47,7 @@ public class Program : Game
     private readonly SimpleLayoutWindow simpleLayoutWindow = new();
     private readonly SimpleFullscreenWindow simpleFullscreenWindow = new();
 
-    // Flags for showing native ImGui demos & tools
+    // Flags for showing native ImGui demos & tools:
     private bool showImGuiNativeDemoWindow = false;
     private bool showImGuiStyleEditor = false;
     private bool showImGuiMetricsWindow = false;

@@ -88,7 +88,7 @@ public sealed class ImGuiRenderer : IDisposable
             _imGuiIO.NativePtr->IniFilename = (byte*)_iniFilePathPtr;
         }
 
-        // Set the input filter
+        // Set the input capture state object
         _inputCaptureState = inputCaptureState;
 
         // Store reference style so end user doesn't *have* to:

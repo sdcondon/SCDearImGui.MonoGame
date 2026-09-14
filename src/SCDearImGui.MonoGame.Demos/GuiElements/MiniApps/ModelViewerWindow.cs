@@ -57,6 +57,7 @@ class ModelViewerWindow(
     {
         if (!IsOpen) return;
 
+        SetNextWindowSize(new(430, 450), ImGuiCond.FirstUseEver);
         if (Begin("Example: Model Viewer", ref IsOpen))
         {
             System.Numerics.Vector2 imageSize = GetContentRegionAvail();
