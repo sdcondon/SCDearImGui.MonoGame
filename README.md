@@ -13,7 +13,7 @@ Changes from MonoGame demo proj in ImGuiNET:
     More importantly, there are scenarios where its very useful to do updates and draws in different orders.
     For example, consider the overwhelmingly common scenario of one component being "on top" of another - it
     appears on top (easiest to achieve if its drawn last), and takes priority in capturing input (easiest to achieve
-    if its updated first). There's an example of this in the demo project.
+    if its updated first). There's an example of this in the demo project - in the form of a console window component.
   * Key up/down event code rewritten, because enumerating a fairly large enumeration in each update is slightly 
     insane, when instead we can just use MonoGame's GetPressedKeys stuff - which does bitwise operations to look
     for pressed keys. Note the benchmarks proj in the solution - which proves that my way is significantly faster.
