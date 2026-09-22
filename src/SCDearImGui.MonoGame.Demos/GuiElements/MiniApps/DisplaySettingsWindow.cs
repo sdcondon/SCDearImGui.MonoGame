@@ -85,19 +85,34 @@ class DisplaySettingsWindow
             guiScaleDebouncer.Restart();
         }
 
+        if (CollapsingHeader("Display Properties"))
+        {
+            Text($"Window Screen Device Name: {window.ScreenDeviceName}");
+            Text($"Window Position X,Y: {window.Position.X},{window.Position.Y}");
+            Text($"Window ClientBounds L - R: {window.ClientBounds.Left} - {window.ClientBounds.Right}");
+            Text($"Window ClientBounds T - B: {window.ClientBounds.Top} - {window.ClientBounds.Bottom}");
+            Text($"GDM Preferred Back Buffer WxH: {graphicsDeviceManager.PreferredBackBufferWidth}x{graphicsDeviceManager.PreferredBackBufferHeight}");
+            Text($"GD Adapter Desc: {graphicsDeviceManager.GraphicsDevice.Adapter.Description}");
+            Text($"GD Display Mode WxH: {graphicsDeviceManager.GraphicsDevice.DisplayMode.Width}x{graphicsDeviceManager.GraphicsDevice.DisplayMode.Height}");
+            Text($"GD Presentation Parameters Back Buffer WxH: {graphicsDeviceManager.GraphicsDevice.PresentationParameters.BackBufferWidth}x{graphicsDeviceManager.GraphicsDevice.PresentationParameters.BackBufferHeight}");
+            Text($"GD Viewport X,Y: {graphicsDeviceManager.GraphicsDevice.Viewport.X},{graphicsDeviceManager.GraphicsDevice.Viewport.Y}");
+            Text($"GD Viewport WxH: {graphicsDeviceManager.GraphicsDevice.Viewport.Width}x{graphicsDeviceManager.GraphicsDevice.Viewport.Height}");
+            Text($"ImGui Window Size X,Y: {GetWindowViewport().Size.X},{GetWindowViewport().Size.Y}");
+        }
+
         Separator();
 
-        Text($"Window Screen Device Name: {window.ScreenDeviceName}");
-        Text($"Window Position X,Y: {window.Position.X},{window.Position.Y}");
-        Text($"Window ClientBounds L - R: {window.ClientBounds.Left} - {window.ClientBounds.Right}");
-        Text($"Window ClientBounds T - B: {window.ClientBounds.Top} - {window.ClientBounds.Bottom}");
-        Text($"GDM Preferred Back Buffer WxH: {graphicsDeviceManager.PreferredBackBufferWidth}x{graphicsDeviceManager.PreferredBackBufferHeight}");
-        Text($"GD Adapter Desc: {graphicsDeviceManager.GraphicsDevice.Adapter.Description}");
-        Text($"GD Display Mode WxH: {graphicsDeviceManager.GraphicsDevice.DisplayMode.Width}x{graphicsDeviceManager.GraphicsDevice.DisplayMode.Height}");
-        Text($"GD Presentation Parameters Back Buffer WxH: {graphicsDeviceManager.GraphicsDevice.PresentationParameters.BackBufferWidth}x{graphicsDeviceManager.GraphicsDevice.PresentationParameters.BackBufferHeight}");
-        Text($"GD Viewport X,Y: {graphicsDeviceManager.GraphicsDevice.Viewport.X},{graphicsDeviceManager.GraphicsDevice.Viewport.Y}");
-        Text($"GD Viewport WxH: {graphicsDeviceManager.GraphicsDevice.Viewport.Width}x{graphicsDeviceManager.GraphicsDevice.Viewport.Height}");
-        Text($"ImGui Window Size X,Y: {GetWindowViewport().Size.X},{GetWindowViewport().Size.Y}");
+        var speed = guiRenderer.MouseWheelVScale;
+        if (SliderFloat("GUI Mouse Wheel V Scaling", ref speed, 1f / 400, 1f / 40))
+        {
+            guiRenderer.MouseWheelVScale = speed;
+        }
+
+        speed = guiRenderer.MouseWheelHScale;
+        if (SliderFloat("GUI Mouse Wheel H Scaling", ref speed, 1f / 400, 1f / 40))
+        {
+            guiRenderer.MouseWheelHScale = speed;
+        }
 
         End();
     }

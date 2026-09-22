@@ -12,7 +12,6 @@ namespace SCDearImGui.MonoGame;
 /// </summary>
 public sealed class ImGuiRenderer : IDisposable
 {
-    private const float MOUSE_WHEEL_DELTA = 120;
     private const int INITIAL_BUFFER_SIZE = 512;
 
     private static readonly int ImDrawVertexStride = Marshal.SizeOf<ImDrawVert>();
@@ -143,7 +142,7 @@ public sealed class ImGuiRenderer : IDisposable
     /// Gets the scale that was provided on the last invocation of <see cref="ApplyStyleAndFonts"/>.
     /// Throws if it has not yet been invoked.
     /// </summary>
-    public float Scale
+    public float GuiScale
     {
         get
         {
@@ -155,6 +154,16 @@ public sealed class ImGuiRenderer : IDisposable
             return currentUiScale;
         }
     }
+
+    /// <summary>
+    /// Gets or sets the scaling multiplier to apply to vertical mouse wheel delta when processing input.
+    /// </summary>
+    public float MouseWheelVScale { get; set; } = 1f / 120;
+
+    /// <summary>
+    /// Gets or sets the scaling multiplier to apply to horizontal mouse wheel delta when processing input.
+    /// </summary>
+    public float MouseWheelHScale { get; set; } = 1f / 120;
 
     /// <summary>
     /// <para>
@@ -503,7 +512,7 @@ public sealed class ImGuiRenderer : IDisposable
 
             if (scrollDelta != 0 || horizontalScrollDelta != 0)
             {
-                _imGuiIO.AddMouseWheelEvent(horizontalScrollDelta / MOUSE_WHEEL_DELTA, scrollDelta / MOUSE_WHEEL_DELTA);
+                _imGuiIO.AddMouseWheelEvent(horizontalScrollDelta * MouseWheelHScale, scrollDelta * MouseWheelVScale);
             }
         }
 
