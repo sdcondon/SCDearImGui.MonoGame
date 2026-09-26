@@ -11,9 +11,10 @@ Changes from MonoGame demo proj in ImGuiNET:
     state (which in ImGui's case happens alongside submitting GUI elements), and logic that sends to the graphics
     pipeline (which in ImGui's case doesn't happen until you retrieve the draw data and deal with it appropriately).
     More importantly, there are scenarios where its very useful to do updates and draws in different orders.
-    For example, consider the overwhelmingly common scenario of one component being "on top" of another - it
-    appears on top (easiest to achieve if its drawn last), and takes priority in capturing input (easiest to achieve
-    if its updated first). There's an example of this in the demo project - in the form of a console window component.
+    For example, consider the common scenario of a console window. We'll generally want a console window to be treated
+    as a separate, higher priority GUI. We won't want it disabled when the main GUI is showing a modal (so will need its
+    own renderer), we will always want it to have priority for input capture (easiest if its updated first), and we will 
+    always want it to be on top (easiest if its drawn last). There's an example of this in the demo project.
   * Key up/down event code rewritten, because enumerating a fairly large enumeration in each update is slightly 
     insane, when instead we can just use MonoGame's GetPressedKeys stuff - which does bitwise operations to look
     for pressed keys. Note the benchmarks proj in the solution - which proves that my way is significantly faster.

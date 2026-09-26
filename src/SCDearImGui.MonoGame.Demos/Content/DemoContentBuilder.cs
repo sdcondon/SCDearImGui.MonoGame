@@ -39,6 +39,7 @@ public class DemoContentBuilder : ContentBuilder
         });
 
         content.IncludeCopy<WildcardRule>("Fonts/*.ttf");
+        content.IncludeCopy<WildcardRule>("Fonts/NotoEmoji/*.ttf");
 
         return content;
     }

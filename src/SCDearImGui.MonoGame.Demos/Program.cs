@@ -185,6 +185,7 @@ public class Program : Game
     {
         // Load the main GUI content - specifically, the font we want to use.
         mainGuiRenderer.RegisterFont(File.ReadAllBytes("Content\\Fonts\\Roboto-Regular.ttf"), 24);
+        mainGuiRenderer.RegisterFont(File.ReadAllBytes("Content\\Fonts\\NotoEmoji\\NotoEmoji-Regular.ttf"), 24);
         mainGuiRenderer.ApplyStyleAndFonts();
 
         // Also initialize the console window renderer. Lets just use the default font for this one:
