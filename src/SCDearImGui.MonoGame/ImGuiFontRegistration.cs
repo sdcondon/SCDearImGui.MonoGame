@@ -59,7 +59,6 @@ public class ImGuiFontRegistration
                 {
                     ImFontGlyphRangesBuilderPtr b = new(ImGuiNative.ImFontGlyphRangesBuilder_ImFontGlyphRangesBuilder());
                     b.AddRanges(ImGui.GetIO().Fonts.GetGlyphRangesDefault());
-
                     var extraRangesElementCount = extraGlyphRanges.Length * 2 + 1;
                     extraRangesPtr = NativeMemory.Alloc((nuint)extraRangesElementCount, sizeof(char));
                     var extraRangesSpan = new Span<char>(extraRangesPtr, extraRangesElementCount);
@@ -71,10 +70,7 @@ public class ImGuiFontRegistration
                     extraRangesSpan[^1] = '\0';
                     b.AddRanges((nint)extraRangesPtr);
 
-                    // TODO: b.AddRanges(..) - looks like imgui expects 0-terminated array of pairs of low-high.
-                    // ALSO TODO: think i do actually need to do some tidy up. make disposable. free ranges data on dispose.
                     b.BuildRanges(out var ranges);
-
                     configPtr.GlyphRanges = ranges.Data;
                 }
 
