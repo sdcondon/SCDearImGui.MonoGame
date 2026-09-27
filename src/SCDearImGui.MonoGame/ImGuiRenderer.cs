@@ -325,13 +325,16 @@ public sealed class ImGuiRenderer : IDisposable
     /// <summary>
     /// Register a font that will be (re-)loaded whenever <see cref="ApplyStyleAndFonts"/> is invoked.
     /// </summary>
-    public ImGuiFontRegistration RegisterFont(string ttfFilePath, float defaultSizePixels)
+    public ImGuiFontRegistration RegisterFont(
+        string ttfFilePath,
+        float defaultSizePixels,
+        IEnumerable<(char start, char end)>? extraGlyphRanges = null)
     {
         // Yes, we don't NEED the context to be the current one here,
         // but it makes for consistent behaviour.
         SetCurrentContext();
 
-        ImGuiFontRegistration fontRegistration = new(ttfFilePath, defaultSizePixels);
+        ImGuiFontRegistration fontRegistration = new(ttfFilePath, defaultSizePixels, extraGlyphRanges);
         fontRegistrations.Add(fontRegistration);
         return fontRegistration;
     }
@@ -339,13 +342,16 @@ public sealed class ImGuiRenderer : IDisposable
     /// <summary>
     /// Register a font that will be (re-)loaded whenever <see cref="ApplyStyleAndFonts"/> is invoked.
     /// </summary>
-    public ImGuiFontRegistration RegisterFont(byte[] ttfData, float defaultSizePixels)
+    public ImGuiFontRegistration RegisterFont(
+        byte[] ttfData,
+        float defaultSizePixels,
+        IEnumerable<(char start, char end)>? extraGlyphRanges = null)
     {
         // Yes, we don't NEED the context to be the current one here,
         // but it makes for consistent behaviour.
         SetCurrentContext();
 
-        ImGuiFontRegistration fontRegistration = new(ttfData, defaultSizePixels);
+        ImGuiFontRegistration fontRegistration = new(ttfData, defaultSizePixels, extraGlyphRanges);
         fontRegistrations.Add(fontRegistration);
         return fontRegistration;
     }
