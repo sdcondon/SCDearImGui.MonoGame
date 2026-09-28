@@ -20,7 +20,9 @@ Changes from MonoGame demo proj in ImGuiNET:
     for pressed keys. Note the benchmarks proj in the solution - which proves that my way is significantly faster.
   * Richer functionality around font and style management - to allow for easily scaling the GUI. Font atlas rebuild
     method replaced with a method for storing a reference style for scaling, a method for registering a font, and a method
-    for applying a particular scale to the GUI and fonts.
+    for applying a particular scale to the GUI and fonts. It also supports easily merging glyphs from multiple fonts together,
+    so that you can e.g. merge icons from an icon font into your main font, reducing/eliminating the need to switch
+    between fonts.
   * Support for respecting and updating broader input capture state - not using input if it has already been consumed
     by something else, and informing other components that the GUI has captured input.
 * Extensive demos. Started by rewriting those found 
