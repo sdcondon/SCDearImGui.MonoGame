@@ -156,12 +156,22 @@ public sealed class ImGuiRenderer : IDisposable
     }
 
     /// <summary>
+    /// <para>
     /// Gets or sets the scaling multiplier to apply to vertical mouse wheel delta when processing input.
+    /// </para>
+    /// <para>
+    /// Defaults to 1 / 120 - thus converting the standard Windows detent delta (120) to 1.
+    /// </para>
     /// </summary>
     public float MouseWheelVScale { get; set; } = 1f / 120;
 
     /// <summary>
+    /// <para>
     /// Gets or sets the scaling multiplier to apply to horizontal mouse wheel delta when processing input.
+    /// </para>
+    /// <para>
+    /// Defaults to 1 / 120.
+    /// </para>
     /// </summary>
     public float MouseWheelHScale { get; set; } = 1f / 120;
 
