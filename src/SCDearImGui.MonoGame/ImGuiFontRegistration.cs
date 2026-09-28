@@ -17,6 +17,8 @@ public class ImGuiFontRegistration
 {
     private readonly FontSpec baseSpec;
 
+    private List<FontSpec> mergeSpecs = [];
+
     internal ImGuiFontRegistration(byte[] ttfData, float defaultSizePixels, IEnumerable<(char start, char end)>? extraGlyphRanges = null)
     {
         this.baseSpec = new(ttfData, defaultSizePixels, true, extraGlyphRanges?.ToArray());
@@ -41,7 +43,10 @@ public class ImGuiFontRegistration
     /// <param name="glyphRanges">The ranges of glyphs to merge in from the font.</param>
     public void Merge(byte[] ttfData, float defaultSizePixels, IEnumerable<(char start, char end)>? glyphRanges = null)
     {
-        throw new NotImplementedException();
+        mergeSpecs.Add(new(ttfData, defaultSizePixels, false, glyphRanges?.ToArray())
+        {
+            IsMerge = true,
+        });
     }
 
     internal void AddToAtlas(ImFontAtlasPtr fontAtlasPtr, float scale)
@@ -53,7 +58,12 @@ public class ImGuiFontRegistration
         Marshal.Copy(baseSpec.Data, 0, data, baseSpec.Data.Length);
         CurrentFontPtr = fontAtlasPtr.AddFontFromMemoryTTF(data, baseSpec.Data.Length, baseSpec.Size * scale, baseSpec.ImFontConfigPtr);
 
-        // TODO: apply merges here
+        foreach (var mergeSpec in mergeSpecs)
+        {
+            data = Marshal.AllocHGlobal(mergeSpec.Data.Length);
+            Marshal.Copy(mergeSpec.Data, 0, data, mergeSpec.Data.Length);
+            fontAtlasPtr.AddFontFromMemoryTTF(data, mergeSpec.Data.Length, mergeSpec.Size * scale, mergeSpec.ImFontConfigPtr);
+        }
     }
 
     private class FontSpec
@@ -127,6 +137,12 @@ public class ImGuiFontRegistration
         public byte[] Data { get; }
 
         public float Size { get; }
+
+        public bool IsMerge
+        {
+            get => imFontConfigPtr.MergeMode;
+            set => imFontConfigPtr.MergeMode = value;
+        }
 
         public ImFontConfigPtr ImFontConfigPtr => imFontConfigPtr;
     }
