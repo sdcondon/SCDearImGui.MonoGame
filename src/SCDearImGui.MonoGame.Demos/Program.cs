@@ -186,6 +186,8 @@ public class Program : Game
         // Load the main GUI content - specifically, the font we want to use.
         // Note that we can merge glyphs from another font (e.g. an emoji font) into a main font,
         // to support icons and emojis without needing to switch fonts to do so.
+        // When running the app, take a look at the "Icons" document in the Documents mini-app to
+        // see the merge below in action.
         var font = mainGuiRenderer.RegisterFont(File.ReadAllBytes("Content\\Fonts\\Roboto-Regular.ttf"), 24);
         font.Merge(File.ReadAllBytes("Content\\Fonts\\NotoEmoji\\NotoEmoji-Regular.ttf"), 24, [('\u2623', '\u2623')]);
         mainGuiRenderer.ApplyStyleAndFonts();

@@ -369,12 +369,13 @@ class ExampleDocumentStore
 {
     private readonly List<ExampleDocument> content =
     [
-        new ExampleDocument(0, "Lettuce",             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", new Vector4(0.4f, 0.8f, 0.4f, 1.0f)),
-        new ExampleDocument(1, "Eggplant",            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", new Vector4(0.8f, 0.5f, 1.0f, 1.0f)),
-        new ExampleDocument(2, "Carrot",              "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", new Vector4(1.0f, 0.8f, 0.5f, 1.0f)),
-        new ExampleDocument(3, "Tomato",              "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", new Vector4(1.0f, 0.3f, 0.4f, 1.0f)),
-        new ExampleDocument(4, "A Rather Long Title", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", new Vector4(0.4f, 0.8f, 0.8f, 1.0f)),
-        new ExampleDocument(5, "Some Document",       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", new Vector4(0.8f, 0.8f, 1.0f, 1.0f))
+        new ExampleDocument(0, "Icons",               "\u2623\u2623\u2623", new Vector4(0.4f, 0.8f, 0.4f, 1.0f)),
+        new ExampleDocument(1, "Lettuce",             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", new Vector4(0.4f, 0.8f, 0.4f, 1.0f)),
+        new ExampleDocument(2, "Eggplant",            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", new Vector4(0.8f, 0.5f, 1.0f, 1.0f)),
+        new ExampleDocument(3, "Carrot",              "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", new Vector4(1.0f, 0.8f, 0.5f, 1.0f)),
+        new ExampleDocument(4, "Tomato",              "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", new Vector4(1.0f, 0.3f, 0.4f, 1.0f)),
+        new ExampleDocument(5, "A Rather Long Title", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", new Vector4(0.4f, 0.8f, 0.8f, 1.0f)),
+        new ExampleDocument(6, "Some Document",       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", new Vector4(0.8f, 0.8f, 1.0f, 1.0f))
     ];
 
     public IEnumerable<(int id, string name)> GetDocumentMetadata()
