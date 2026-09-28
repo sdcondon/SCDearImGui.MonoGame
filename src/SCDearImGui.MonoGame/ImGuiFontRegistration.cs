@@ -15,17 +15,9 @@ namespace SCDearImGui.MonoGame;
 /// </summary>
 public class ImGuiFontRegistration
 {
-    private readonly string? ttfFilePath;
     private readonly byte[]? ttfData;
     private readonly float defaultSizePixels;
     private readonly (char start, char end)[]? extraGlyphRanges;
-
-    internal ImGuiFontRegistration(string ttfFilePath, float defaultSizePixels, IEnumerable<(char start, char end)>? extraGlyphRanges = null)
-    {
-        this.ttfFilePath = ttfFilePath;
-        this.defaultSizePixels = defaultSizePixels;
-        this.extraGlyphRanges = extraGlyphRanges?.ToArray();
-    }
 
     internal ImGuiFontRegistration(byte[] ttfData, float defaultSizePixels, IEnumerable<(char start, char end)>? extraGlyphRanges = null)
     {
@@ -59,6 +51,7 @@ public class ImGuiFontRegistration
                 {
                     ImFontGlyphRangesBuilderPtr b = new(ImGuiNative.ImFontGlyphRangesBuilder_ImFontGlyphRangesBuilder());
                     b.AddRanges(ImGui.GetIO().Fonts.GetGlyphRangesDefault());
+
                     var extraRangesElementCount = extraGlyphRanges.Length * 2 + 1;
                     extraRangesPtr = NativeMemory.Alloc((nuint)extraRangesElementCount, sizeof(char));
                     var extraRangesSpan = new Span<char>(extraRangesPtr, extraRangesElementCount);
@@ -74,23 +67,12 @@ public class ImGuiFontRegistration
                     configPtr.GlyphRanges = ranges.Data;
                 }
 
-                if (ttfFilePath != null)
-                {
-                    CurrentFontPtr = fontAtlasPtr.AddFontFromFileTTF(ttfFilePath, defaultSizePixels * scale, configPtr);
-                }
-                else if (ttfData != null)
-                {
-                    // NB: note that we don't free the unmanaged memory that we allocate here.
-                    // It is used directly by ImGui rather than being the source of a copy - it is referred to as the "input data".
-                    // It is tidied by ImFontAtlas::Clear (among others) - which is invoked by ImGuiRenderer in ApplyStyleAndFonts.
-                    var data = Marshal.AllocHGlobal(ttfData.Length);
-                    Marshal.Copy(ttfData, 0, data, ttfData.Length);
-                    CurrentFontPtr = fontAtlasPtr.AddFontFromMemoryTTF(data, ttfData.Length, defaultSizePixels * scale, configPtr);
-                }
-                else
-                {
-                    throw new InvalidOperationException();
-                }
+                // NB: note that we don't free the unmanaged memory that we allocate here.
+                // It is used directly by ImGui rather than being the source of a copy - it is referred to as the "input data".
+                // It is tidied by ImFontAtlas::Clear (among others) - which is invoked by ImGuiRenderer in ApplyStyleAndFonts.
+                var data = Marshal.AllocHGlobal(ttfData.Length);
+                Marshal.Copy(ttfData, 0, data, ttfData.Length);
+                CurrentFontPtr = fontAtlasPtr.AddFontFromMemoryTTF(data, ttfData.Length, defaultSizePixels * scale, configPtr);
             }
             finally
             {
