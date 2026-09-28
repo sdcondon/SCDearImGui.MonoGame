@@ -17,7 +17,7 @@ public class ImGuiFontRegistration
 {
     private readonly FontSpec baseSpec;
 
-    private List<FontSpec> mergeSpecs = [];
+    private readonly List<FontSpec> mergeSpecs = [];
 
     internal ImGuiFontRegistration(byte[] ttfData, float defaultSizePixels, IEnumerable<(char start, char end)>? extraGlyphRanges = null)
     {
