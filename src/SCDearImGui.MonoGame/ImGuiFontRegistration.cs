@@ -15,15 +15,11 @@ namespace SCDearImGui.MonoGame;
 /// </summary>
 public class ImGuiFontRegistration
 {
-    private readonly byte[]? ttfData;
-    private readonly float defaultSizePixels;
-    private readonly (char start, char end)[]? extraGlyphRanges;
+    private readonly FontSpec baseSpec;
 
     internal ImGuiFontRegistration(byte[] ttfData, float defaultSizePixels, IEnumerable<(char start, char end)>? extraGlyphRanges = null)
     {
-        this.ttfData = ttfData;
-        this.defaultSizePixels = defaultSizePixels;
-        this.extraGlyphRanges = extraGlyphRanges?.ToArray();
+        this.baseSpec = new(ttfData, defaultSizePixels, true, extraGlyphRanges?.ToArray());
     }
 
     /// <summary>
@@ -37,50 +33,101 @@ public class ImGuiFontRegistration
     /// </summary>
     public ImFontPtr CurrentFontPtr { get; private set; }
 
+    /// <summary>
+    /// Merges specific glyphs from another font into this one.
+    /// </summary>
+    /// <param name="ttfData">The ttf data of the font to merge.</param>
+    /// <param name="defaultSizePixels">The default size (i.e. when the GUI scale is set to 1) to use for the merged glyphs, in pixels.</param>
+    /// <param name="glyphRanges">The ranges of glyphs to merge in from the font.</param>
+    public void Merge(byte[] ttfData, float defaultSizePixels, IEnumerable<(char start, char end)>? glyphRanges = null)
+    {
+        throw new NotImplementedException();
+    }
+
     internal void AddToAtlas(ImFontAtlasPtr fontAtlasPtr, float scale)
     {
-        unsafe
+        // NB: note that we don't free the unmanaged memory that we allocate here.
+        // It is used directly by ImGui rather than being the source of a copy - it is referred to as the "input data".
+        // It is tidied by ImFontAtlas::Clear (among others) - which is invoked by ImGuiRenderer in ApplyStyleAndFonts.
+        var data = Marshal.AllocHGlobal(baseSpec.Data.Length);
+        Marshal.Copy(baseSpec.Data, 0, data, baseSpec.Data.Length);
+        CurrentFontPtr = fontAtlasPtr.AddFontFromMemoryTTF(data, baseSpec.Data.Length, baseSpec.Size * scale, baseSpec.ImFontConfigPtr);
+
+        // TODO: apply merges here
+    }
+
+    private class FontSpec
+    {
+        private readonly ImFontConfigPtr imFontConfigPtr;
+
+        public FontSpec(byte[] data, float size, bool includeDefaultGlyphRange, (char start, char end)[]? glyphRanges = null)
         {
-            void* extraRangesPtr = null;
+            Data = data;
+            Size = size;
 
-            try
+            unsafe
             {
-                ImFontConfigPtr configPtr = new(ImGuiNative.ImFontConfig_ImFontConfig());
+                void* glyphRangesPtr = null;
+                ImFontGlyphRangesBuilderPtr rangesBuilderPtr = new(null);
 
-                if (extraGlyphRanges != null)
+                try
                 {
-                    ImFontGlyphRangesBuilderPtr b = new(ImGuiNative.ImFontGlyphRangesBuilder_ImFontGlyphRangesBuilder());
-                    b.AddRanges(ImGui.GetIO().Fonts.GetGlyphRangesDefault());
+                    imFontConfigPtr = new(ImGuiNative.ImFontConfig_ImFontConfig());
 
-                    var extraRangesElementCount = extraGlyphRanges.Length * 2 + 1;
-                    extraRangesPtr = NativeMemory.Alloc((nuint)extraRangesElementCount, sizeof(char));
-                    var extraRangesSpan = new Span<char>(extraRangesPtr, extraRangesElementCount);
-                    for (int i = 0; i < extraGlyphRanges.Length; i++)
+                    rangesBuilderPtr = new(ImGuiNative.ImFontGlyphRangesBuilder_ImFontGlyphRangesBuilder());
+
+                    if (includeDefaultGlyphRange)
                     {
-                        extraRangesSpan[2 * i] = extraGlyphRanges[i].start;
-                        extraRangesSpan[2 * i + 1] = extraGlyphRanges[i].end;
+                        rangesBuilderPtr.AddRanges(ImGui.GetIO().Fonts.GetGlyphRangesDefault());
                     }
-                    extraRangesSpan[^1] = '\0';
-                    b.AddRanges((nint)extraRangesPtr);
 
-                    b.BuildRanges(out var ranges);
-                    configPtr.GlyphRanges = ranges.Data;
+                    if (glyphRanges != null)
+                    {
+                        var glyphRangesElementCount = glyphRanges.Length * 2 + 1;
+                        glyphRangesPtr = NativeMemory.Alloc((nuint)glyphRangesElementCount, sizeof(char));
+                        var glyphRangesSpan = new Span<char>(glyphRangesPtr, glyphRangesElementCount);
+                        for (int i = 0; i < glyphRanges.Length; i++)
+                        {
+                            glyphRangesSpan[2 * i] = glyphRanges[i].start;
+                            glyphRangesSpan[2 * i + 1] = glyphRanges[i].end;
+                        }
+                        glyphRangesSpan[^1] = '\0';
+                        rangesBuilderPtr.AddRanges((nint)glyphRangesPtr);
+                    }
+
+                    rangesBuilderPtr.BuildRanges(out var ranges);
+                    imFontConfigPtr.GlyphRanges = ranges.Data;
                 }
-
-                // NB: note that we don't free the unmanaged memory that we allocate here.
-                // It is used directly by ImGui rather than being the source of a copy - it is referred to as the "input data".
-                // It is tidied by ImFontAtlas::Clear (among others) - which is invoked by ImGuiRenderer in ApplyStyleAndFonts.
-                var data = Marshal.AllocHGlobal(ttfData.Length);
-                Marshal.Copy(ttfData, 0, data, ttfData.Length);
-                CurrentFontPtr = fontAtlasPtr.AddFontFromMemoryTTF(data, ttfData.Length, defaultSizePixels * scale, configPtr);
-            }
-            finally
-            {
-                if (extraRangesPtr != null)
+                catch
                 {
-                    NativeMemory.Free(extraRangesPtr);
+                    imFontConfigPtr.Destroy();
+                    throw;
+                }
+                finally
+                {
+                    if (glyphRangesPtr != null)
+                    {
+                        NativeMemory.Free(glyphRangesPtr);
+                    }
+
+                    if (rangesBuilderPtr.NativePtr != null)
+                    {
+                        rangesBuilderPtr.Destroy();
+                    }
                 }
             }
         }
+
+        // NB: don't bother making disposable just yet. prob should at some point.
+        ~FontSpec()
+        {
+            ImFontConfigPtr.Destroy();
+        }
+
+        public byte[] Data { get; }
+
+        public float Size { get; }
+
+        public ImFontConfigPtr ImFontConfigPtr => imFontConfigPtr;
     }
 }
