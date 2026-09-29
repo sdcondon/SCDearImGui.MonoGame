@@ -189,7 +189,7 @@ public class Program : Game
         // When running the app, take a look at the "Icons" document in the Documents mini-app to
         // see the merge below in action.
         var font = mainGuiRenderer.RegisterFont(File.ReadAllBytes("Content\\Fonts\\Roboto-Regular.ttf"), 24);
-        font.Merge(File.ReadAllBytes("Content\\Fonts\\NotoEmoji\\NotoEmoji-Regular.ttf"), 24, [('\u2623', '\u2623')]);
+        font.Merge(File.ReadAllBytes("Content\\Fonts\\NotoEmoji\\NotoEmoji-Regular.ttf"), 24, [('\u0100', '\uffff')]);
         mainGuiRenderer.ApplyStyleAndFonts();
 
         // Also initialize the console window renderer. Lets just use the default font for this one:
