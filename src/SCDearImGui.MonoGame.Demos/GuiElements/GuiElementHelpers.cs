@@ -70,7 +70,7 @@ static class GuiElementHelpers
     /// </para>
     /// <para>
     /// NB: we use the handler used by the compiler to resolve interpolated strings rather than
-    /// creating our own. This keeps the work to a minimum for me (this is only sa demo proj, after
+    /// creating our own. This keeps the work to a minimum for me (this is only a demo project, after
     /// all), but does mean that in error scenarios the exceptions thrown might not be as graceful
     /// as if we'd written our own handler.
     /// </para>
