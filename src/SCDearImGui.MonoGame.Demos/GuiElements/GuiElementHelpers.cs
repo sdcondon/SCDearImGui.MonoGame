@@ -1,7 +1,6 @@
 ﻿using ImGuiNET;
 using System;
-using System.Collections;
-using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace SCDearImGui.MonoGame.Demos.GuiElements;
 
@@ -62,6 +61,24 @@ static class GuiElementHelpers
         where T : struct, Enum
     {
         return CheckboxFlags(value.ToString(), ref flags, value);
+    }
+
+    /// <summary>
+    /// <para>
+    /// Submits a text element to ImGui, pulling content from an interpolated string without 
+    /// necessarily making a heap allocation - via use of the <see cref="DefaultInterpolatedStringHandler"/>.
+    /// </para>
+    /// <para>
+    /// NB: we use the handler used by the compiler to resolve interpolated strings rather than
+    /// creating our own. This keeps the work to a minimum for me (this is only sa demo proj, after
+    /// all), but does mean that in error scenarios the exceptions thrown might not be as graceful
+    /// as if we'd written our own handler.
+    /// </para>
+    /// </summary>
+    public static void Text(DefaultInterpolatedStringHandler interpolatedStringHandler)
+    {
+        ImGui.Text(interpolatedStringHandler.Text);
+        interpolatedStringHandler.Clear();
     }
 
     public static void ExampleFileMenu()

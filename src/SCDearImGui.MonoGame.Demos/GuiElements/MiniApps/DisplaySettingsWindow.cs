@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using static ImGuiNET.ImGui;
+using static SCDearImGui.MonoGame.Demos.GuiElements.GuiElementHelpers;
 
 namespace SCDearImGui.MonoGame.Demos.GuiElements.MiniApps;
 

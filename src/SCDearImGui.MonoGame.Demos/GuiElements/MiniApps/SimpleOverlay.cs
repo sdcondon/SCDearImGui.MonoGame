@@ -1,6 +1,7 @@
 ﻿using ImGuiNET;
 using Microsoft.Xna.Framework;
 using static ImGuiNET.ImGui;
+using static SCDearImGui.MonoGame.Demos.GuiElements.GuiElementHelpers;
 
 namespace SCDearImGui.MonoGame.Demos.GuiElements.MiniApps;
 

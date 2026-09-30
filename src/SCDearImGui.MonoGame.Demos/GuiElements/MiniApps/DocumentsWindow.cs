@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using static ImGuiNET.ImGui;
+using static SCDearImGui.MonoGame.Demos.GuiElements.GuiElementHelpers;
 
 namespace SCDearImGui.MonoGame.Demos.GuiElements.MiniApps;
 
