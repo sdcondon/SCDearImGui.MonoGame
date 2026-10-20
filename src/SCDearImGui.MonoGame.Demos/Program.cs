@@ -218,7 +218,7 @@ public class Program : Game
 
         // First, update the console window. We do this first so that it has priority in consuming input.
         // Note that BeginUpdate needs to be called every update before submitting anything to a given
-        // renderer in a given frame, and EndUpdate needs to be called when eveything has been submitted.
+        // renderer in a given frame, and EndUpdate needs to be called when everything has been submitted.
         consoleWindowRenderer.BeginUpdate(gameTime);
         consoleWindow.Update();
         consoleWindowRenderer.EndUpdate();
